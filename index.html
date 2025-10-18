@@ -3,708 +3,423 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>王与奴 — 可玩版（单页）</title>
+<title>王与奴 — 在线</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg-1:#12040a; --panel: #17121a; --accent:#d4af37; --muted:#e9decf;
-    --glass: rgba(255,255,255,0.04);
-  }
-  *{box-sizing:border-box}
-  body{font-family:"Microsoft YaHei", "Cinzel", serif; margin:0; min-height:100vh; background:linear-gradient(180deg,#1b0710 0%, #2a0f2f 100%); color:var(--muted); display:flex; justify-content:center; padding:24px;}
-  .app{width:1100px; max-width:100%; display:grid; grid-template-columns: 1fr 360px; gap:20px; align-items:start;}
-  header{grid-column:1 / -1; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.1)); border:2px solid rgba(212,175,55,0.08); padding:14px; border-radius:10px; text-align:center;}
-  header h1{margin:0;color:var(--accent);font-size:1.6rem}
-  .panel{background:var(--panel); padding:14px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); box-shadow:0 6px 18px rgba(0,0,0,0.6);}
-  .lobby{display:flex; flex-direction:column; gap:12px}
-  .small{font-size:13px; color:#dcd0bf}
-  .row{display:flex; gap:8px; align-items:center}
-  button{background:var(--accent); color:#2b1a10; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:700}
-  input, select{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--muted)}
-  .hand{display:flex; gap:10px; flex-wrap:wrap}
-  .card{width:110px;height:150px;border-radius:10px;background:linear-gradient(180deg,#1e1512,#291714);border:2px solid rgba(212,175,55,0.08);padding:10px;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 6px 12px rgba(0,0,0,0.6)}
-  .card.back{background:linear-gradient(180deg,#291a1a,#1a0f0f); color:transparent}
-  .card .name{font-weight:800;color:var(--accent)}
-  .zone{min-height:180px;background:var(--glass);border-radius:8px;padding:10px;border:1px dashed rgba(255,255,255,0.03)}
-  .title{font-weight:700;color:var(--accent);margin-bottom:8px}
-  #log{height:240px; overflow:auto; background:rgba(0,0,0,0.45); padding:8px; border-radius:6px; font-size:13px}
-  .meta{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-bottom:8px}
-  .center{display:flex;align-items:center;justify-content:center}
-  .badge{background:rgba(255,255,255,0.03);padding:6px 10px;border-radius:8px}
-  .hidden{display:none}
-  footer{grid-column:1/-1;text-align:center;color:#bdb0a0;font-size:13px;margin-top:10px}
-  .selected{outline:3px solid rgba(212,175,55,0.35); transform:translateY(-6px)}
-  .flexcol{display:flex;flex-direction:column;gap:8px}
-  .room-list{display:flex;flex-direction:column;gap:8px;max-height:260px;overflow:auto}
-  .room-item{display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(255,255,255,0.02);border-radius:8px}
-  .stat{font-size:13px;color:#d4ccbb}
+  body{font-family:"Microsoft YaHei","Cinzel",serif;background:linear-gradient(180deg,#1b0710,#241018);color:#f0e6d2;margin:0;padding:18px;display:flex;justify-content:center;}
+  .wrap{width:1150px;max-width:100%;display:grid;grid-template-columns:1fr 360px;gap:18px}
+  .panel{background:rgba(0,0,0,0.45);padding:14px;border-radius:10px;border:1px solid rgba(212,175,55,0.06)}
+  header{grid-column:1/-1;text-align:center;margin-bottom:6px}
+  h1{color:#d4af37;margin:0}
+  .row{display:flex;gap:8px;align-items:center}
+  button{background:#d4af37;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+  input,select{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#f0e6d2}
+  .hand{display:flex;gap:10px;flex-wrap:wrap}
+  .card{width:110px;height:150px;border-radius:10px;background:linear-gradient(180deg,#2b1912,#351f15);border:2px solid rgba(212,175,55,0.08);padding:8px;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between}
+  .card.back{background:linear-gradient(180deg,#3d2220,#2a1412); color:transparent}
+  #log{height:260px;overflow:auto;background:rgba(0,0,0,0.5);padding:8px;border-radius:6px}
+  .small{font-size:13px;color:#e9decf}
+  .selected{outline:3px solid rgba(212,175,55,0.22);transform:translateY(-6px)}
 </style>
 </head>
 <body>
-  <div class="app">
-    <header class="panel">
-      <h1>王与奴 — 可玩网页原型（单页）</h1>
-      <div class="small">回合制同步出牌 / 刺客 / 屠夫 / 守卫 / 女王即时替换国王等完整规则。支持大厅、好友、个人主页、邀请房间（本地模拟）。</div>
-    </header>
+<div class="wrap">
+  <header class="panel">
+    <h1>王与奴 — 在线对战（演示）</h1>
+    <div class="small">请确保后端 server.js 已启动并可通过 WebSocket 连接（见 README）。</div>
+  </header>
 
-    <!-- Left: main area: lobby / game / profile -->
-    <main id="main" class="panel lobby">
-      <!-- VIEW: will be replaced by JS -->
-    </main>
-
-    <!-- Right: sidebar -->
-    <aside class="panel flexcol">
-      <div>
-        <div class="title">个人信息</div>
-        <div id="profileBox" class="row" style="gap:12px">
-          <div id="avatar" style="width:56px;height:56px;border-radius:8px;background:linear-gradient(180deg,#2a160f,#1a0b06);display:flex;align-items:center;justify-content:center;font-size:26px">🙂</div>
-          <div style="flex:1">
-            <div id="displayName" style="font-weight:800"></div>
-            <div class="stat" id="record">胜 0 / 负 0</div>
-          </div>
-        </div>
-        <div style="margin-top:8px" class="small">昵称与头像保存在浏览器，登录后会自动恢复。</div>
-        <div style="margin-top:12px" class="row">
-          <button id="btnProfile">编辑个人主页</button>
-          <button id="btnNewGame">创建房间</button>
-        </div>
+  <main class="panel" id="main">
+    <div id="loginUI">
+      <div class="row" style="gap:12px">
+        <input id="inputName" placeholder="输入昵称"/>
+        <button id="btnLogin">进入大厅</button>
       </div>
+      <div style="margin-top:12px" class="small">会为你生成 userId（保存在 localStorage），用于重连与识别。</div>
+    </div>
 
-      <div style="margin-top:14px">
-        <div class="title">好友（本地）</div>
-        <div class="row" style="gap:6px;margin-bottom:6px">
-          <input id="friendName" placeholder="好友昵称或id" style="flex:1"/>
-          <button id="btnAddFriend">添加</button>
+    <div id="lobbyUI" style="display:none">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div>
+          <select id="openingSelect"><option value="king">国王开局</option><option value="queen">女王开局</option><option value="slave">奴隶开局</option></select>
+          <button id="btnCreateRoom">创建房间</button>
         </div>
-        <div id="friendsList" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow:auto"></div>
-      </div>
-
-      <div style="margin-top:14px">
-        <div class="title">房间（本地）</div>
-        <div class="row" style="gap:6px">
-          <input id="roomCodeInput" placeholder="输入房间号加入" style="flex:1"/>
-          <button id="btnJoinRoom">加入</button>
-        </div>
-        <div style="margin-top:8px" class="small">创建房间后会生成房间号，可与好友共享（本地模拟）</div>
-        <div style="margin-top:8px" id="roomList" class="room-list"></div>
-      </div>
-    </aside>
-
-    <footer class="panel" style="text-align:center">
-      提示：这是单机/局域网可玩的前端原型；若需在线多人请接后端 Socket 服务。
-    </footer>
-  </div>
-
-<script>
-/* ===================
-   Utilities & storage
-   =================== */
-const storeKey = 'wang_nu_profile_v1';
-const friendKey = 'wang_nu_friends_v1';
-const roomsKey = 'wang_nu_rooms_v1';
-const recordKey = 'wang_nu_record_v1';
-
-function saveJSON(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
-function loadJSON(k, fallback){ try{ const s=localStorage.getItem(k); return s?JSON.parse(s):fallback }catch(e){return fallback}}
-function uid(len=6){ return Math.random().toString(36).slice(2,2+len).toUpperCase() }
-
-/* ===================
-   Default profile
-   =================== */
-let profile = loadJSON(storeKey, null);
-if(!profile){
-  const name = prompt('欢迎！请输入你的昵称（将保存在本地）','玩家'+Math.floor(Math.random()*999));
-  profile = { id: uid(6), name: name || '玩家', avatar: '🙂', wins:0, losses:0, preferred:'slave' };
-  saveJSON(storeKey, profile);
-}
-document.getElementById('displayName').textContent = profile.name;
-document.getElementById('avatar').textContent = profile.avatar;
-updateRecordUI();
-
-/* friends & rooms in localStorage */
-let friends = loadJSON(friendKey, []);
-let rooms = loadJSON(roomsKey, {}); // rooms: {roomId: {id, hostId, players:[ids], openingChoicePerPlayer:{}, state}}
-renderFriends();
-renderRoomsList();
-
-/* ===================
-   Views: lobby/profile/game
-   =================== */
-const main = document.getElementById('main');
-
-function showLobby(){
-  main.innerHTML = `
-    <div>
-      <div class="title">游戏大厅</div>
-      <div class="row" style="gap:12px;margin-top:6px">
-        <label class="small">选择开局</label>
-        <select id="selectOpening">
-          <option value="king">国王开局</option>
-          <option value="queen">女王开局</option>
-          <option value="slave">奴隶方</option>
-        </select>
-        <button id="btnQuickPlay">单人随机房（与AI）</button>
-        <button id="btnCreate">创建房间（本地）</button>
+        <div class="small">已连接：<span id="onlineCount">0</span></div>
       </div>
 
       <div style="margin-top:12px">
-        <div class="title">房间列表（本地）</div>
-        <div id="lobbyRooms" class="room-list"></div>
+        <div class="small">在线玩家</div>
+        <div id="usersList" style="max-height:120px;overflow:auto"></div>
       </div>
-      <div style="margin-top:12px" class="title">规则速查</div>
-      <div class="small" style="line-height:1.6">
-        出牌：双方同时选择一张牌翻开判定。<br>
-        规则摘要：刺客（可击杀或抽牌）、屠夫（出场双方同归于尽）、守卫/终极守卫（保护/秒杀刺客）、女王（仅最后一张出，可带走对手本轮出牌并触发国王立即上阵）、奴隶（Lv0，可击败国王）等。更多详见手册。
+
+      <div style="margin-top:12px">
+        <div class="small">房间列表</div>
+        <div id="roomsList" style="max-height:220px;overflow:auto"></div>
+      </div>
+
+      <div style="margin-top:12px" class="small">房间创建后可分享房间号给对手；两人加入房间后房主可点击「开始对战」。</div>
+    </div>
+
+    <div id="roomUI" style="display:none">
+      <div class="row" style="justify-content:space-between">
+        <div><strong>房间：</strong><span id="roomIdDisplay"></span></div>
+        <div><button id="btnLeaveRoom">离开房间</button></div>
+      </div>
+      <div style="margin-top:8px">
+        <div class="small">玩家：</div>
+        <div id="roomPlayers"></div>
+      </div>
+      <div style="margin-top:8px">
+        <button id="btnStartMatch" disabled>开始对战（房主）</button>
       </div>
     </div>
-  `;
-  // hook events
-  document.getElementById('selectOpening').value = profile.preferred || 'slave';
-  document.getElementById('selectOpening').addEventListener('change', e=>{ profile.preferred = e.target.value; saveJSON(storeKey, profile) });
-  document.getElementById('btnQuickPlay').addEventListener('click', ()=> {
-    const opening = document.getElementById('selectOpening').value;
-    startMatchLocal({ mode:'solo', playerOpening: opening });
+
+    <div id="gameUI" style="display:none">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div><strong>房间：</strong><span id="gameRoomId"></span> • 回合：<span id="gameRound">0</span></div>
+        <div>
+          <button id="btnForfeit">认输</button>
+          <button id="btnExitGame">退出对战</button>
+        </div>
+      </div>
+
+      <div style="margin-top:8px;display:flex;gap:12px">
+        <div style="flex:1">
+          <div class="small">对手出牌区</div>
+          <div id="opponentPlayed" style="min-height:120px;border-radius:8px;background:rgba(0,0,0,0.06);padding:8px"></div>
+
+          <div style="margin-top:8px" class="small">对手手牌数：<span id="opponentCount">0</span></div>
+
+          <div style="margin-top:8px" id="battleLog" class="small"></div>
+        </div>
+
+        <div style="width:380px">
+          <div class="small">你的手牌</div>
+          <div id="playerHand" class="hand" style="margin-top:8px"></div>
+          <div style="margin-top:8px" class="row">
+            <button id="btnPlayCard">出牌（确认）</button>
+            <button id="btnSkipCard">跳过（弃一）</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px" id="gameMessages" class="small"></div>
+    </div>
+
+  </main>
+
+  <aside class="panel">
+    <div class="small">本地战绩（浏览器保存）</div>
+    <div id="localRecord" style="margin-top:8px" class="small">胜 0 / 负 0 / 平 0</div>
+    <div style="margin-top:12px">
+      <div class="small">调试</div>
+      <div style="margin-top:8px" class="row"><button id="btnRoomsRefresh">刷新房间</button><button id="btnUsersRefresh">刷新玩家</button></div>
+      <div style="margin-top:8px" class="small">服务器地址：<input id="serverURL" style="width:100%" value="" placeholder="可留空使用当前页面的 socket 地址"/></div>
+    </div>
+    <div style="margin-top:14px" class="small">说明：若你把前端部署到 GitHub Pages，请把后端部署到 Render 并替换上方 server URL（例如 wss://your-app.onrender.com）。</div>
+  </aside>
+</div>
+
+<!-- socket.io client -->
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+/* ---------- Config & Storage ---------- */
+const LOCAL_USER_KEY = 'wangnu_online_user_v1';
+const LOCAL_RECORD_KEY = 'wangnu_online_record_v1';
+const defaultServer = ''; // if empty, will use current origin (ws same host)
+let serverURL = localStorage.getItem('wangnu_server_url') || defaultServer;
+
+/* ---------- Local record ---------- */
+let localRecord = JSON.parse(localStorage.getItem(LOCAL_RECORD_KEY) || '{"wins":0,"losses":0,"draws":0}');
+function updateLocalRecordUI(){ document.getElementById('localRecord').textContent = `胜 ${localRecord.wins} / 负 ${localRecord.losses} / 平 ${localRecord.draws}`; }
+
+/* ---------- Socket & user ---------- */
+let socket = null;
+let user = JSON.parse(localStorage.getItem(LOCAL_USER_KEY) || 'null');
+
+function connectSocket(){
+  if(socket && socket.connected) return;
+  const url = document.getElementById('serverURL').value.trim() || serverURL;
+  const opts = {};
+  socket = io(url || undefined, opts);
+  socket.on('connect', ()=> {
+    console.log('socket connected', socket.id);
+    if(user) socket.emit('register', { userId: user.id, name: user.name }, (res)=> {
+      if(res && res.ok){ user = { ...user, id: res.user.id, name: res.user.name }; localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(user)); showLobbyUI(); }
+    });
   });
-  document.getElementById('btnCreate').addEventListener('click', ()=> createRoomLocal());
-  renderLobbyRooms();
+  // server broadcasts
+  socket.on('users:update', (list)=> renderUsers(list));
+  socket.on('rooms:update', (rooms)=> renderRooms(rooms));
+  socket.on('room:update', (room)=> onRoomUpdated(room));
+  socket.on('room:ready', ({ roomId }) => { if(currentRoomId === roomId) updateRoomReady(true); });
+  socket.on('match:started', (data)=> onMatchStarted(data));
+  socket.on('match:played', (data)=> onMatchPlayed(data));
+  socket.on('match:resolved', (data)=> onMatchResolved(data));
+  socket.on('match:finished', (data)=> onMatchFinished(data));
 }
-showLobby();
 
-document.getElementById('btnProfile').addEventListener('click', ()=> showProfile());
-document.getElementById('btnNewGame').addEventListener('click', ()=> createRoomLocal());
-
-/* ===================
-   Friends & room helper
-   =================== */
-document.getElementById('btnAddFriend').addEventListener('click', ()=> {
-  const v = document.getElementById('friendName').value.trim();
-  if(!v) return alert('请输入昵称或id');
-  const friendId = uid(6);
-  friends.push({ id:friendId, name:v, online: Math.random()<0.7 });
-  saveJSON(friendKey, friends); renderFriends();
-  document.getElementById('friendName').value='';
+document.getElementById('btnLogin').addEventListener('click', ()=> {
+  const name = document.getElementById('inputName').value.trim() || ('玩家'+Math.floor(Math.random()*900));
+  if(!user) user = { id:null, name };
+  else user.name = name;
+  localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(user));
+  connectSocket();
 });
 
-function renderFriends(){
-  const el = document.getElementById('friendsList');
-  el.innerHTML = '';
-  if(friends.length===0){ el.innerHTML='<div class="small">还没有好友（可用本地添加）</div>'; return }
-  friends.forEach(f=>{
-    const d = document.createElement('div'); d.className='row'; d.style.justifyContent='space-between';
-    d.innerHTML = `<div><strong>${f.name}</strong><div class="small">ID: ${f.id} • ${f.online?'<span style="color:#7fe57f">在线</span>':'离线'}</div></div>
-      <div style="display:flex;gap:8px"><button class="invite-btn" data-id="${f.id}">邀请</button><button class="remove-friend" data-id="${f.id}">删除</button></div>`;
+// refresh controls
+document.getElementById('btnRoomsRefresh').addEventListener('click', ()=> { if(socket) socket.emit('rooms:list', {}, (res)=> { if(res && res.rooms) renderRooms(res.rooms); })});
+document.getElementById('btnUsersRefresh').addEventListener('click', ()=> { if(socket) socket.emit('rooms:list', {}, ()=>{}); });
+
+/* ---------- Lobby UI ---------- */
+function showLobbyUI(){
+  document.getElementById('loginUI').style.display='none';
+  document.getElementById('lobbyUI').style.display='block';
+  // request lists
+  if(socket) {
+    socket.emit('rooms:list', {}, (res)=> { if(res && res.rooms) renderRooms(res.rooms); });
+    // update online count by requesting users
+    // server pushes 'users:update' periodically as well
+  }
+}
+
+function renderUsers(list){
+  const el = document.getElementById('usersList'); el.innerHTML='';
+  const arr = list || [];
+  document.getElementById('onlineCount').textContent = arr.filter(u=>u.online).length;
+  arr.forEach(u=>{
+    const div = document.createElement('div'); div.className='small';
+    div.innerHTML = `<strong>${u.name}</strong> (${u.online? '在线':'离线'})`;
+    el.appendChild(div);
+  });
+}
+
+function renderRooms(list){
+  const el = document.getElementById('roomsList'); el.innerHTML='';
+  (list||[]).forEach(r=>{
+    const div = document.createElement('div');
+    const players = r.players.map(p=>p.name).join(', ');
+    div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div class="small"><strong>${r.id}</strong> • ${players}</div><div><button data-id="${r.id}" class="joinBtn">加入</button></div></div>`;
+    el.appendChild(div);
+  });
+  Array.from(el.querySelectorAll('.joinBtn')).forEach(b => {
+    b.onclick = ()=> {
+      const id = b.dataset.id;
+      if(!socket) return alert('未连接服务器');
+      socket.emit('room:join', { roomId: id, userId: user.id }, (res)=> {
+        if(res && res.ok){ openRoomUI(res.room); }
+        else alert('加入房间失败：'+(res.error||'未知'));
+      });
+    };
+  });
+}
+
+/* ---------- Create room ---------- */
+let currentRoomId = null;
+document.getElementById('btnCreateRoom').addEventListener('click', ()=> {
+  const opening = document.getElementById('openingSelect').value;
+  if(!socket) return alert('未连接服务器');
+  socket.emit('room:create', { hostId: user.id, opening }, (res)=> {
+    if(res && res.ok){ openRoomUI(res.room); } else alert('创建房间失败');
+  });
+});
+
+function openRoomUI(room){
+  currentRoomId = room.id;
+  document.getElementById('lobbyUI').style.display='none';
+  document.getElementById('roomUI').style.display='block';
+  document.getElementById('roomIdDisplay').textContent = room.id;
+  document.getElementById('roomPlayers').innerHTML = room.players.map(p=>`<div class="small">${p.name}</div>`).join('');
+  // enable start if you're host and players >=2
+  const isHost = room.hostId === user.id;
+  const startBtn = document.getElementById('btnStartMatch');
+  startBtn.disabled = !(isHost && room.players.length>=2);
+  startBtn.onclick = ()=> {
+    // trigger match:start
+    socket.emit('match:start', { roomId: room.id }, (res)=> {
+      if(!res || !res.ok) alert('无法开始对战：'+(res && res.error));
+    });
+  };
+  document.getElementById('btnLeaveRoom').onclick = ()=> {
+    socket.emit('room:leave', { roomId: room.id, userId: user.id }, (res)=> {
+      currentRoomId = null; document.getElementById('roomUI').style.display='none'; document.getElementById('lobbyUI').style.display='block';
+    });
+  };
+}
+
+/* room update listener */
+function onRoomUpdated(room){
+  if(!room) return;
+  if(room.id !== currentRoomId) return;
+  document.getElementById('roomPlayers').innerHTML = room.players.map(p=>`<div class="small">${p.name}</div>`).join('');
+  const isHost = room.hostId === user.id;
+  document.getElementById('btnStartMatch').disabled = !(isHost && room.players.length>=2);
+  document.getElementById('roomIdDisplay').textContent = room.id;
+}
+function updateRoomReady(ready){
+  if(ready && currentRoomId){ document.getElementById('btnStartMatch').disabled = false; }
+}
+
+/* ---------- Match events from server ---------- */
+let localMatch = null;
+
+function onMatchStarted(data){
+  // data: { roomId, players, counts }
+  const roomId = data.roomId;
+  currentRoomId = roomId;
+  document.getElementById('roomUI').style.display='none';
+  document.getElementById('gameUI').style.display='block';
+  document.getElementById('gameRoomId').textContent = roomId;
+  document.getElementById('gameRound').textContent = 1;
+  // create local match structure: we will display hands counts and wait for server to send hands indirectly (server doesn't send full hand)
+  // But server uses room.hands; to simplify, client will request room state by calling rooms:list (or receive match:started then request room data via API) 
+  // For MVP we'll rely on server to notify played events and resolved events, and server will manage counts in 'counts' field.
+  localMatch = { roomId, round:1, myPlayed:null, oppPlayed:null, selectedCardId:null };
+  document.getElementById('battleLog').textContent = '';
+  // show counts
+  renderHandPlaceholders(data.counts);
+}
+
+function renderHandPlaceholders(counts){
+  // render player hand as hidden slots until server sends details (server currently doesn't push full hands due to security).
+  // For a nicer UX, we will request /api/rooms to get summary (counts only). Real implementation would send hands to each player privately.
+  const myCountObj = counts.find(c=>c.pid === user.id) || { count: 0 };
+  const opp = counts.find(c=>c.pid !== user.id) || { count: 0 };
+  // Render player's hand as clickable placeholders (we will request actual card list via a new event in future).
+  const playerHandEl = document.getElementById('playerHand');
+  playerHandEl.innerHTML = '';
+  for(let i=0;i<myCountObj.count;i++){
+    const div = document.createElement('div'); div.className='card back'; div.textContent = '牌';
+    // NOTE: we need real hand details; as MVP server did not send per-player hand to other players, we fetch via simple REST /api/rooms then require real implementation to deliver hand privately.
+    // To keep MVP playable: We will ask server to emit 'match:hand' privately to each socket on match:start in future iterations.
+    playerHandEl.appendChild(div);
+  }
+  document.getElementById('opponentCount').textContent = opp.count;
+}
+
+/* match:played - someone played a card (revealed summary) */
+function onMatchPlayed({ roomId, userId, cardSummary }){
+  // Show in battle log
+  const who = userId === user.id ? '你' : (cardSummary && cardSummary.name ? '对手' : '对手');
+  const msg = `${who} 出牌（背面）`;
+  appendBattleLog(msg);
+}
+
+/* match:resolved - server sends events and updated counts */
+function onMatchResolved({ room, events, counts }){
+  // show events in UI
+  appendBattleLog('回合结算：');
+  events.forEach(ev=>{
+    if(ev.type==='assassin:draw') appendBattleLog(`刺客抽牌导致阵亡：${ev.killed? ev.killed.name: ''}`);
+    else if(ev.type==='assassin:bothdie') appendBattleLog('双方刺客互相作用，均发生抽牌/阵亡');
+    else if(ev.type==='butcher:bothdie') appendBattleLog('屠夫出现 — 双方本回合出牌一同阵亡');
+    else if(ev.type==='assassin:kill') appendBattleLog(`刺客击杀：${ev.target? ev.target.name : ''}`);
+    else if(ev.type==='ultguard:kills_assassin') appendBattleLog('终极守卫击杀了刺客');
+    else if(ev.type==='special') appendBattleLog(`特殊事件：由 ${ev.winner} 胜出`);
+    else if(ev.type==='normal') appendBattleLog(`普通比较，胜者：${ev.winner}`);
+    else if(ev.type==='tie') appendBattleLog('等级相同，双方阵亡');
+    else if(ev.type==='queen:died') appendBattleLog(`女王陨落，国王立即上阵`);
+  });
+  // update counts UI
+  const myCountObj = counts.find(c=>c.pid === user.id) || { count:0 };
+  const opp = counts.find(c=>c.pid !== user.id) || { count:0 };
+  // regenerate placeholders
+  const playerHandEl = document.getElementById('playerHand');
+  playerHandEl.innerHTML = '';
+  for(let i=0;i<myCountObj.count;i++){
+    const div = document.createElement('div'); div.className='card back'; div.textContent = '牌';
+    playerHandEl.appendChild(div);
+  }
+  document.getElementById('opponentCount').textContent = opp.count;
+}
+
+/* match:finished */
+function onMatchFinished({ winner, room }){
+  if(winner === user.id) { alert('你获胜！'); localRecord.wins++; localStorage.setItem(LOCAL_RECORD_KEY, JSON.stringify(localRecord)); updateLocalRecordUI(); }
+  else { alert('你失败。'); localRecord.losses++; localStorage.setItem(LOCAL_RECORD_KEY, JSON.stringify(localRecord)); updateLocalRecordUI(); }
+  // go back to lobby
+  document.getElementById('gameUI').style.display='none';
+  document.getElementById('lobbyUI').style.display='block';
+}
+
+/* ---------- Play card UI (MVP) ---------- 
+   NOTE: For privacy & security, server should send each player's hand privately.
+   For MVP in this deliverable I implement a simplified flow:
+   - After match:start, server SHOULD emit 'match:hand' privately to each socket containing the player's hand (array of cards).
+   - But our server implementation currently stores hands in memory and does not yet send them on match:started.
+   To make this work now: we will call a REST API /api/rooms and/or ask server to send private hand via socket.
+   Let's use a private event 'match:hand:request' which server can respond with 'match:hand' to the socket that requested.
+*/
+
+/* Request personal hand from server */
+function requestMyHand(){
+  if(!socket || !currentRoomId) return;
+  socket.emit('match:hand:request', { roomId: currentRoomId, userId: user.id }, (res)=> {
+    if(res && res.ok && res.hand){
+      populateHandUI(res.hand);
+    } else {
+      // fallback: display placeholder (already done)
+      console.warn('无法获取手牌（服务器未返回手牌），使用占位显示');
+    }
+  });
+}
+
+/* Populate player's hand with real cards (callable when server supports it) */
+function populateHandUI(hand){
+  const el = document.getElementById('playerHand'); el.innerHTML='';
+  hand.forEach(card=>{
+    const d = document.createElement('div'); d.className='card';
+    d.innerHTML = `<div style="font-weight:800;color:#d4af37">${card.name}</div><div class="small">${card.tag}</div><div style="text-align:right">Lv.${card.lvl}</div>`;
+    d.onclick = ()=> {
+      // select highlight
+      Array.from(el.children).forEach(ch=>ch.classList.remove('selected'));
+      d.classList.add('selected');
+      selectedCardId = card._id;
+    };
     el.appendChild(d);
   });
-  // bind invites
-  Array.from(el.querySelectorAll('.invite-btn')).forEach(btn=>{
-    btn.onclick = ()=> {
-      const fid = btn.dataset.id;
-      const r = createRoomLocal(true);
-      // simulate invite: add friend to room players for local demo
-      rooms[r.id].players.push(fid);
-      saveRooms(); renderRoomsList(); renderLobbyRooms();
-      alert('已生成房间号并邀请：' + fid + '\n房间号: ' + r.id);
-    }
-  });
-  Array.from(el.querySelectorAll('.remove-friend')).forEach(btn=>{
-    btn.onclick = ()=> {
-      friends = friends.filter(f=>f.id!==btn.dataset.id); saveJSON(friendKey, friends); renderFriends();
-    }
-  });
 }
 
-/* Rooms: local simulate */
-function saveRooms(){ saveJSON(roomsKey, rooms); renderRoomsList(); renderLobbyRooms() }
-function renderRoomsList(){
-  const el = document.getElementById('roomList'); el.innerHTML='';
-  const ks = Object.keys(rooms);
-  if(ks.length===0){ el.innerHTML='<div class="small">暂无房间</div>'; return }
-  ks.forEach(id=>{
-    const r = rooms[id];
-    const div = document.createElement('div'); div.className='room-item';
-    div.innerHTML = `<div><strong>${id}</strong><div class="small">主机: ${r.hostName} • 玩家: ${r.players.length}/2</div></div>
-      <div><button data-id="${id}" class="join-room">加入</button></div>`;
-    el.appendChild(div);
+/* Playing card: send match:play to server with cardId */
+let selectedCardId = null;
+document.getElementById('btnPlayCard').addEventListener('click', ()=> {
+  if(!socket || !currentRoomId) return alert('未在房间中');
+  // if we have selectedCardId (from populateHandUI), use it. Else ask server to pick first available card automatically.
+  if(!selectedCardId){
+    // fallback: try to pick the first placeholder by requesting a hand first
+    return requestMyHand(), alert('未选择具体卡牌，已请求服务器下发手牌（如果后端支持）');
+  }
+  socket.emit('match:play', { roomId: currentRoomId, userId: user.id, cardId: selectedCardId }, (res)=> {
+    if(!res || !res.ok) alert('出牌失败: '+(res && res.error));
+    else { appendBattleLog('你已出牌（等待对方）'); selectedCardId = null; }
   });
-  Array.from(el.querySelectorAll('.join-room')).forEach(b=> b.onclick=()=> joinRoomLocal(b.dataset.id));
-}
-function renderLobbyRooms(){
-  const el = document.getElementById('lobbyRooms'); el.innerHTML='';
-  const ks = Object.keys(rooms);
-  if(ks.length===0){ el.innerHTML='<div class="small">暂无房间</div>'; return }
-  ks.forEach(id=>{
-    const r = rooms[id];
-    const div = document.createElement('div'); div.className='room-item';
-    div.innerHTML = `<div><strong>${id}</strong><div class="small">开局: ${r.openingChoice} • 主机: ${r.hostName}</div></div>
-      <div><button data-id="${id}" class="join-room2">加入</button></div>`;
-    el.appendChild(div);
-  });
-  Array.from(el.querySelectorAll('.join-room2')).forEach(b=> b.onclick=()=> joinRoomLocal(b.dataset.id));
-}
-
-/* Create / join room locally (simulate invite) */
-function createRoomLocal(fromInvite=false){
-  const id = uid(5);
-  const openingChoice = profile.preferred || 'slave';
-  rooms[id] = { id, hostId: profile.id, hostName: profile.name, players: [profile.id], openingChoice, state:'waiting' };
-  saveRooms();
-  renderLobbyRooms();
-  alert('创建房间成功，房间号：' + id);
-  return rooms[id];
-}
-document.getElementById('btnJoinRoom').addEventListener('click', ()=> {
-  const code = document.getElementById('roomCodeInput').value.trim();
-  if(!code) return alert('请输入房间号'); joinRoomLocal(code);
 });
-function joinRoomLocal(roomId){
-  const room = rooms[roomId];
-  if(!room) return alert('未找到该房间');
-  if(!room.players.includes(profile.id)) room.players.push(profile.id);
-  room.state = room.players.length >= 2 ? 'ready' : 'waiting';
-  saveRooms();
-  openRoomUI(roomId);
+
+document.getElementById('btnSkipCard').addEventListener('click', ()=> {
+  // skipping not built-in server side; as a workaround we can ask server to play a 'skip' action (not implemented).
+  alert('跳过（弃一张）目前在在线模式下由客户端本地实现需服务器支持，此处请通过出一张不想要的牌模拟。');
+});
+
+/* utility logs */
+function appendBattleLog(s){
+  const el = document.getElementById('battleLog');
+  el.innerHTML = `<div>&gt; ${s}</div>` + el.innerHTML;
 }
 
-/* ===================
-   Profile view
-   =================== */
-function showProfile(){
-  main.innerHTML = `
-    <div class="title">个人主页</div>
-    <div style="display:flex;gap:12px;align-items:center">
-      <div style="width:120px;height:120px;border-radius:12px;background:linear-gradient(180deg,#2a160f,#1a0b06);display:flex;align-items:center;justify-content:center;font-size:48px" id="pfAvatar">${profile.avatar}</div>
-      <div style="flex:1">
-        <div class="small">昵称</div>
-        <input id="pfName" value="${profile.name}" style="width:100%;margin-bottom:8px"/>
-        <div class="small">首选开局</div>
-        <select id="pfOpening"><option value="king">国王开局</option><option value="queen">女王开局</option><option value="slave">奴隶方</option></select>
-        <div style="margin-top:8px">
-          <button id="pfSave">保存</button>
-          <button id="pfBack">返回大厅</button>
-        </div>
-        <div style="margin-top:10px" class="small">战绩：<span id="pfRecord">${profile.wins} 胜 / ${profile.losses} 负</span></div>
-      </div>
-    </div>
-  `;
-  document.getElementById('pfOpening').value = profile.preferred || 'slave';
-  document.getElementById('pfSave').onclick = ()=>{
-    profile.name = document.getElementById('pfName').value || profile.name;
-    profile.preferred = document.getElementById('pfOpening').value;
-    saveJSON(storeKey, profile);
-    document.getElementById('displayName').textContent = profile.name;
-    updateRecordUI();
-    alert('已保存');
-  };
-  document.getElementById('pfBack').onclick = ()=> showLobby();
+/* UI helpers on page load */
+updateLocalRecordUI();
+document.getElementById('serverURL').value = serverURL;
+document.getElementById('usersList').innerHTML = '';
+document.getElementById('roomsList').innerHTML = '';
+
+// connect immediately if we have saved user
+if(user){
+  // try connect
+  connectSocket();
+  // auto register when socket connects (handled in connect)
+  document.getElementById('inputName').value = user.name || '';
+  // show lobby if already connected in connect callback
 }
-
-/* ===================
-   Room UI & start match (local)
-   =================== */
-function openRoomUI(roomId){
-  const room = rooms[roomId];
-  if(!room) return alert('房间不存在');
-  main.innerHTML = `
-    <div>
-      <div class="title">房间 ${roomId}</div>
-      <div class="small">主机：${room.hostName} • 玩家：${room.players.length}/2</div>
-      <div style="margin-top:10px" class="row">
-        <label>开局（主机预设）</label>
-        <div class="badge">${room.openingChoice}</div>
-        <button id="btnStartMatch" ${room.players.length<2? 'disabled': ''}>开始对战</button>
-        <button id="btnLeaveRoom">离开房间</button>
-      </div>
-      <div style="margin-top:12px"><div class="title">玩家列表</div><div id="roomPlayers"></div></div>
-    </div>
-  `;
-  const playersDiv = document.getElementById('roomPlayers');
-  playersDiv.innerHTML = room.players.map(pid=>`<div class="small">${pid===profile.id? '<strong>（你）</strong> ' : ''}${getNameById(pid)}</div>`).join('');
-  document.getElementById('btnLeaveRoom').onclick = ()=> {
-    room.players = room.players.filter(x=>x!==profile.id);
-    saveRooms(); showLobby();
-  };
-  document.getElementById('btnStartMatch').onclick = ()=> {
-    // start match with opening choices
-    // For local: allow both players to take room.openingChoice
-    room.state='playing';
-    saveRooms();
-    startMatchLocal({ mode:'local', roomId, playerOpening: room.openingChoice, opponentOpening: room.openingChoice });
-  }
-}
-
-/* helper */
-function getNameById(id){
-  if(id===profile.id) return profile.name;
-  const f = friends.find(x=>x.id===id); return f?f.name:('玩家_'+id.slice(0,4));
-}
-
-/* ===================
-   Game engine (local)
-   - will be used by solo or room matches
-   =================== */
-
-/* Card templates same as server: */
-const cardTemplates = {
-  king: [
-    { name: '市民', tag: 'citizen', lvl:1 },
-    { name: '市民', tag: 'citizen', lvl:1 },
-    { name: '刺客', tag: 'assassin', lvl:2 },
-    { name: '屠夫', tag: 'butcher', lvl:2 },
-    { name: '皇家守卫', tag: 'royalguard', lvl:2 },
-    { name: '国王', tag: 'king', lvl:3 }
-  ],
-  queen: [
-    { name: '市民', tag: 'citizen', lvl:1 },
-    { name: '市民', tag: 'citizen', lvl:1 },
-    { name: '刺客', tag: 'assassin', lvl:2 },
-    { name: '屠夫', tag: 'butcher', lvl:2 },
-    { name: '终极守卫', tag: 'ultguard', lvl:3 },
-    { name: '女王', tag: 'queen', lvl:3 }
-  ],
-  slave: [
-    { name: '奴隶', tag: 'slave', lvl:0 },
-    { name: '奴隶', tag: 'slave', lvl:0 },
-    { name: '市民', tag: 'citizen', lvl:1 },
-    { name: '市民', tag: 'citizen', lvl:1 },
-    { name: '守卫', tag: 'guard', lvl:2 },
-    { name: '刺客', tag: 'assassin', lvl:2 },
-    { name: '屠夫', tag: 'butcher', lvl:2 }
-  ]
-};
-
-function cloneDeck(opening){
-  const src = cardTemplates[opening] || cardTemplates['slave'];
-  // deep clone and random id
-  return shuffleArray(src.map(c=> ({ ...JSON.parse(JSON.stringify(c)), _id: Math.random().toString(36).slice(2,9) })));
-}
-function shuffleArray(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
-
-/* Match state */
-let match = null;
-
-/* Start a local match:
-   options:
-     { mode:'solo', playerOpening }
-     { mode:'local', roomId, playerOpening, opponentOpening }
-*/
-function startMatchLocal(opts){
-  const mode = opts.mode || 'solo';
-  const playerOpening = opts.playerOpening || profile.preferred || 'slave';
-  const opponentOpening = (opts.opponentOpening) ? opts.opponentOpening : (mode==='solo'? 'slave': playerOpening);
-  // build hands
-  const myHand = cloneDeck(playerOpening);
-  const aiHand = cloneDeck(opponentOpening);
-  match = {
-    mode, roomId: opts.roomId || null,
-    player: { id: profile.id, name: profile.name, hand: myHand, discard:[], played:null, opening:playerOpening },
-    opponent: { id: 'AI_'+uid(4), name: (mode==='solo'?'AI 敌人':'对手'), hand: aiHand, discard:[], played:null, opening:opponentOpening },
-    round:1,
-    log: [],
-    state: 'select' // select -> resolve -> finished
-  };
-  showGameUI();
-  dumpLog(`对战开始：你(${playerOpening}) vs ${match.opponent.name} (${opponentOpening})`);
-  renderGame();
-}
-
-/* Show game UI */
-function showGameUI(){
-  main.innerHTML = `
-    <div>
-      <div class="title">对战 — 回合 <span id="roundNum">1</span></div>
-      <div style="display:flex;gap:12px;margin-top:8px">
-        <div style="flex:1">
-          <div class="zone">
-            <div class="title">对手出牌区</div>
-            <div id="opponentPlayed" style="min-height:80px"></div>
-            <div style="margin-top:8px" id="opponentHandWrap" class="small">对手手牌：<span id="opponentCount"></span></div>
-          </div>
-          <div style="margin-top:8px" class="zone">
-            <div class="title">战斗/日志</div>
-            <div id="roundLog" style="min-height:120px"></div>
-          </div>
-        </div>
-        <div style="width:420px">
-          <div class="zone">
-            <div class="title">你的信息</div>
-            <div class="small">名字：${profile.name}</div>
-            <div class="small">开局：<strong id="infoOpening"></strong></div>
-            <div style="margin-top:8px" class="row">
-              <button id="btnAutoPlay">AI 模式（自动出牌）</button>
-              <button id="btnForfeit">认输</button>
-              <button id="btnExit">返回大厅</button>
-            </div>
-            <div style="margin-top:10px" class="small">手牌数量： <span id="playerCount"></span></div>
-            <div style="margin-top:8px" id="log" class="small"></div>
-          </div>
-        </div>
-      </div>
-
-      <div style="margin-top:12px">
-        <div class="title">你的手牌（点击选择）</div>
-        <div id="playerHand" class="hand"></div>
-        <div style="margin-top:10px" class="row">
-          <button id="btnPlay">出牌（确认）</button>
-          <button id="btnSkip">跳过（弃一张）</button>
-        </div>
-      </div>
-    </div>
-  `;
-  document.getElementById('btnExit').onclick = ()=> { if(confirm('返回大厅将中断对局？')) { match=null; showLobby(); } };
-  document.getElementById('btnForfeit').onclick = ()=> { finishMatch('opponent'); };
-  document.getElementById('btnAutoPlay').onclick = ()=> { // toggle auto for opponent
-    match.auto = !match.auto; document.getElementById('btnAutoPlay').textContent = match.auto? 'AI 模式（已开）':'AI 模式（自动出牌）';
-  };
-  document.getElementById('btnPlay').onclick = playSelectedCard;
-  document.getElementById('btnSkip').onclick = ()=> {
-    if(!match) return;
-    // skip: discard first card
-    const c = match.player.hand.shift();
-    match.player.discard.push(c);
-    dumpRoundLog(`你选择跳过并弃置 ${c.name}`);
-    match.round++;
-    checkAfterRoundAdvance();
-    renderGame();
-  };
-}
-
-/* Render game state */
-let selectedIndex = null;
-function renderGame(){
-  if(!match) return;
-  document.getElementById('roundNum').textContent = match.round;
-  document.getElementById('infoOpening').textContent = match.player.opening;
-  document.getElementById('playerCount').textContent = match.player.hand.length;
-  document.getElementById('opponentCount').textContent = match.opponent.hand.length;
-  // render hand
-  const handEl = document.getElementById('playerHand'); handEl.innerHTML='';
-  match.player.hand.forEach((c,i)=>{
-    const div = document.createElement('div'); div.className='card'; div.innerHTML = `<div class="name">${c.name}</div><div class="small">${c.tag || ''}</div><div style="text-align:right">Lv.${c.lvl}</div>`;
-    div.onclick = ()=> {
-      // queen can only be played if it's your last card
-      if(c.tag==='queen' && match.player.hand.length>1){ alert('女王只能在你仅剩最后一张牌时出场'); return; }
-      // toggle selection
-      const was = selectedIndex; selectedIndex = (selectedIndex===i? null : i);
-      Array.from(handEl.children).forEach((el,idx)=> el.classList.toggle('selected', idx===selectedIndex));
-    };
-    if(i===selectedIndex) div.classList.add('selected');
-    handEl.appendChild(div);
-  });
-  // opponent played area (hidden until reveal)
-  const opPlayed = document.getElementById('opponentPlayed'); opPlayed.innerHTML='';
-  if(match.opponent.played && match.state !== 'select'){
-    const c = match.opponent.played;
-    const div = document.createElement('div'); div.className='card'; div.innerHTML=`<div class="name">${c.name}</div><div class="small">${c.tag||''}</div><div style="text-align:right">Lv.${c.lvl}</div>`;
-    opPlayed.appendChild(div);
-  } else {
-    opPlayed.innerHTML = '<div class="small">等待翻牌（回合结算时显示）</div>';
-  }
-  // log
-  document.getElementById('log').textContent = match.log.slice(-6).join('\\n');
-  if(match.state === 'select'){
-    // if auto-opponent, let opponent auto select
-    if(match.auto && !match.opponent.played){
-      opponentAutoPlay();
-    }
-  }
-}
-
-/* Opponent AI chooses a card index (simple) */
-function opponentAutoPlay(){
-  if(!match || match.opponent.hand.length===0) return;
-  // AI avoids playing queen unless last
-  let idx = match.opponent.hand.findIndex(c => c.tag !== 'queen' && c.tag !== 'ultguard');
-  if(idx===-1) idx = 0;
-  // if no choice, pick random
-  if(idx === -1) idx = Math.floor(Math.random()*match.opponent.hand.length);
-  const chosen = match.opponent.hand.splice(idx,1)[0];
-  match.opponent.played = chosen;
-  dumpRoundLog(`${match.opponent.name} 已选牌（背面）`);
-  renderGame();
-}
-
-/* Play selected card (player) */
-function playSelectedCard(){
-  if(!match) return;
-  if(selectedIndex==null){ alert('请先选择一张手牌'); return; }
-  // take card
-  const card = match.player.hand.splice(selectedIndex,1)[0];
-  // queen only allowed last (already enforced)
-  match.player.played = card;
-  dumpRoundLog(`你已选择 ${card.name}`);
-  // opponent choose if not yet
-  if(!match.opponent.played){
-    // if match.auto true: already chosen; else choose random AI
-    if(match.auto){
-      // nothing (auto would have chosen)
-    } else {
-      // simple AI: choose avoid queen unless last
-      let idx = match.opponent.hand.findIndex(c => c.tag !== 'queen' && c.tag !== 'ultguard');
-      if(idx===-1) idx = Math.floor(Math.random()*match.opponent.hand.length);
-      const chosen = match.opponent.hand.splice(idx,1)[0];
-      match.opponent.played = chosen;
-      dumpRoundLog(`${match.opponent.name} 已选择（背面）`);
-    }
-  }
-  // set state to resolve and run resolution after small delay for UX
-  match.state = 'resolve';
-  renderGame();
-  setTimeout(()=> { resolveRound(); }, 700);
-}
-
-/* Resolve round according to rules */
-function resolveRound(){
-  if(!match) return;
-  const p = match.player.played || null;
-  const a = match.opponent.played || null;
-  dumpRoundLog(`双方翻牌： 你 -> ${p? p.name:'无'}  | ${match.opponent.name} -> ${a? a.name:'无'}`);
-  // handle empties
-  if(!p && !a){ dumpRoundLog('双方皆无牌，本回合跳过'); advanceRound(); return; }
-  if(!a && p){ dumpRoundLog('对手无牌，你自动回收'); match.player.hand.push(p); match.player.played=null; advanceRound(); return;}
-  if(!p && a){ dumpRoundLog('你无牌，对手自动回收'); match.opponent.hand.push(a); match.opponent.played=null; advanceRound(); return;}
-  // both present: apply rules in priority order
-  // 1) both assassins
-  if(p.tag==='assassin' && a.tag==='assassin'){
-    // both randomly draw from opponent hand and die
-    if(match.opponent.hand.length>0){ const r = Math.floor(Math.random()*match.opponent.hand.length); const killed = match.opponent.hand.splice(r,1)[0]; match.opponent.discard.push(killed); dumpRoundLog(`你的刺客抽中了对手的 ${killed.name}（被阵亡）`) }
-    else dumpRoundLog('对手无手牌可抽');
-    if(match.player.hand.length>0){ const r = Math.floor(Math.random()*match.player.hand.length); const killed = match.player.hand.splice(r,1)[0]; match.player.discard.push(killed); dumpRoundLog(`对手的刺客抽中了你的 ${killed.name}（被阵亡）`) }
-    else dumpRoundLog('你无手牌可抽');
-    // both played cards die
-    match.player.discard.push(p); match.opponent.discard.push(a);
-    match.player.played = null; match.opponent.played = null;
-    advanceRound(); return;
-  }
-  // 2) butcher involvement (any butcher -> both die)
-  if(p.tag==='butcher' || a.tag==='butcher'){
-    dumpRoundLog('屠夫出现 → 双方出牌一同阵亡');
-    match.player.discard.push(p); match.opponent.discard.push(a);
-    match.player.played=null; match.opponent.played=null;
-    advanceRound(); return;
-  }
-  // 3) assassin vs non-assassin
-  if(p.tag==='assassin' && a.tag!=='assassin'){
-    if(a.tag==='butcher'){ dumpRoundLog('你刺客对上屠夫 → 双亡'); match.player.discard.push(p); match.opponent.discard.push(a); match.player.played=null; match.opponent.played=null; advanceRound(); return; }
-    // player choice: kill or draw
-    const choice = confirm('你出刺客：按「确定」=直接击杀对方出牌；按「取消」=随机抽对方手牌（若有）');
-    if(choice){
-      dumpRoundLog(`你刺客选择直接击杀 ${a.name}`);
-      match.opponent.discard.push(a); match.player.discard.push(p); match.player.played=null; match.opponent.played=null; advanceRound(); return;
-    } else {
-      if(match.opponent.hand.length>0){ const r = Math.floor(Math.random()*match.opponent.hand.length); const killed = match.opponent.hand.splice(r,1)[0]; match.opponent.discard.push(killed); dumpRoundLog(`你刺客随机抽中对手的 ${killed.name}（被阵亡）`) } else dumpRoundLog('对手无手牌可抽');
-      match.player.discard.push(p); match.player.played=null; match.opponent.played=null; advanceRound(); return;
-    }
-  }
-  if(a.tag==='assassin' && p.tag!=='assassin'){
-    if(p.tag==='butcher'){ dumpRoundLog('对方刺客遇到屠夫 → 双亡'); match.player.discard.push(p); match.opponent.discard.push(a); match.player.played=null; match.opponent.played=null; advanceRound(); return; }
-    // opponent (AI) chooses randomly between kill/draw
-    const aiChoiceKill = Math.random() < 0.6;
-    if(aiChoiceKill){
-      dumpRoundLog(`对方刺客发动：直接击杀你的 ${p.name}`);
-      match.player.discard.push(p); match.opponent.discard.push(a); match.player.played=null; match.opponent.played=null; advanceRound(); return;
-    } else {
-      if(match.player.hand.length>0){ const r = Math.floor(Math.random()*match.player.hand.length); const killed = match.player.hand.splice(r,1)[0]; match.player.discard.push(killed); dumpRoundLog(`对方刺客随机抽中你的 ${killed.name}（被阵亡）`) } else dumpRoundLog('你无手牌可抽');
-      match.opponent.discard.push(a); match.player.played=null; match.opponent.played=null; advanceRound(); return;
-    }
-  }
-  // 4) ultimate guard kills assassin
-  if(p.tag==='ultguard' && a.tag==='assassin'){
-    dumpRoundLog('终极守卫击杀了对方刺客（终极守卫回手牌）');
-    match.opponent.discard.push(a);
-    match.player.hand.push(p); // winner returns
-    match.player.played=null; match.opponent.played=null; advanceRound(); return;
-  }
-  if(a.tag==='ultguard' && p.tag==='assassin'){
-    dumpRoundLog('对方终极守卫击杀了你的刺客（终极守卫回手牌）');
-    match.player.discard.push(p);
-    match.opponent.hand.push(a);
-    match.player.played=null; match.opponent.played=null; advanceRound(); return;
-  }
-  // 5) special: slave beats king
-  if(p.tag==='slave' && a.tag==='king'){
-    dumpRoundLog('你用奴隶击败了对方国王（你回手该奴隶，对方国王阵亡）');
-    match.player.hand.push(p); match.opponent.discard.push(a);
-    match.player.played=null; match.opponent.played=null; advanceRound(); return;
-  }
-  if(a.tag==='slave' && p.tag==='king'){
-    dumpRoundLog('对方奴隶击败了你的国王（你失败）');
-    match.opponent.hand.push(a); match.player.discard.push(p);
-    match.player.played=null; match.opponent.played=null; advanceRound(); return;
-  }
-  // normal lv compare
-  if(p.lvl > a.lvl){
-    dumpRoundLog(`你方胜出：${p.name} 胜 ${a.name}（赢的牌回手）`);
-    match.player.hand.push(p); match.opponent.discard.push(a);
-    match.player.played=null; match.opponent.played=null; advanceRound(); return;
-  } else if(p.lvl < a.lvl){
-    dumpRoundLog(`对方胜出：${a.name} 胜 ${p.name}`);
-    match.opponent.hand.push(a); match.player.discard.push(p);
-    match.player.played=null; match.opponent.played=null; advanceRound(); return;
-  } else {
-    dumpRoundLog(`等级相同 → 双亡：${p.name} & ${a.name}`);
-    match.player.discard.push(p); match.opponent.discard.push(a);
-    match.player.played=null; match.opponent.played=null; advanceRound(); return;
-  }
-}
-
-/* After each round cleanup / queen death logic / win check */
-function advanceRound(){
-  // queen death handling: if queen died for someone -> instant spawn king into their hand and ultguard dies
-  [match.player, match.opponent].forEach(side=>{
-    const qIdx = side.discard.findIndex(c=>c.tag==='queen');
-    if(qIdx!==-1){
-      dumpRoundLog(`${side.name} 的女王陨落 -> 国王立即上阵替代`);
-      // remove ultguard from their hand (殉职)
-      side.hand = side.hand.filter(x=>x.tag !== 'ultguard');
-      // ensure king exists in hand
-      if(!side.hand.some(x=>x.tag==='king')) side.hand.push({ name:'国王', tag:'king', lvl:3, _id: 'spawned_'+Math.random().toString(36).slice(2,7) });
-    }
-  });
-  // next round
-  match.round++;
-  // win check: if player's king in discard -> opponent wins match
-  if(match.player.discard.some(c=>c.tag==='king')){ finishMatch('opponent'); return; }
-  if(match.opponent.discard.some(c=>c.tag==='king')){ finishMatch('player'); return; }
-  // also if one side has no cards and cannot play next round -> decide by remaining hands
-  if(match.player.hand.length===0 && match.opponent.hand.length===0){ dumpRoundLog('双方手牌耗尽，比较最后结果（平局处理为无）'); finishMatch('draw'); return; }
-  // reset state and render
-  match.state = 'select';
-  selectedIndex = null;
-  renderGame();
-}
-
-/* helper: finishMatch(winner='player'|'opponent'|'draw') */
-function finishMatch(winner){
-  if(!match) return;
-  if(winner==='player'){ dumpRoundLog('你获胜！'); profile.wins = (profile.wins||0)+1; }
-  else if(winner==='opponent'){ dumpRoundLog('你失败'); profile.losses = (profile.losses||0)+1; }
-  else dumpRoundLog('平局');
-  saveJSON(storeKey, profile); updateRecordUI();
-  // show summary and back to lobby
-  setTimeout(()=> {
-    if(confirm('对局结束，返回大厅？')){ match=null; showLobby(); }
-  }, 600);
-}
-
-/* logs */
-function dumpLog(s){ console.log(s); }
-function dumpRoundLog(s){
-  match.log.push('第'+match.round+'回合：'+s); document.getElementById('roundLog') && (document.getElementById('roundLog').innerHTML = match.log.slice(-20).map(x=>'&gt; '+x).join('<br>'));
-  // update right sidebar log
-  document.getElementById('log') && (document.getElementById('log').textContent = match.log.slice(-6).join('\\n'));
-}
-
-/* update record UI in sidebar */
-function updateRecordUI(){ document.getElementById('displayName').textContent = profile.name; document.getElementById('avatar').textContent = profile.avatar; document.getElementById('record').textContent = `胜 ${profile.wins||0} / 负 ${profile.losses||0}`; saveJSON(storeKey, profile); }
-
-/* ===================
-   Init: attach some UI flows
-   =================== */
-document.getElementById('btnCreate').addEventListener('click', ()=> createRoomLocal());
-document.getElementById('roomCodeInput')?.addEventListener('keydown', (e)=>{ if(e.key==='Enter') document.getElementById('btnJoinRoom').click() });
-renderFriends();
-renderRoomsList();
-renderLobbyRooms();
 
 </script>
 </body>
