@@ -1,14 +1,4122 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>王与奴 — 网页版（MVP）</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>王与奴 - 中世纪卡牌对战</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(135deg, #2c1810 0%, #8b4513 50%, #2c1810 100%);
+            color: #f4e4bc;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #d4af37;
+        }
+
+        .game-title {
+            font-size: 2rem;
+            color: #d4af37;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            margin: 0;
+        }
+
+        .game-subtitle {
+            font-size: 1.2rem;
+            margin: 10px 0;
+            color: #f4e4bc;
+        }
+
+        .setup-screen {
+            background: rgba(0,0,0,0.4);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #8b4513;
+            text-align: center;
+        }
+
+        .mode-selection {
+            margin-bottom: 30px;
+        }
+
+        .mode-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .mode-card {
+            background: linear-gradient(145deg, #3a2817, #2c1810);
+            border: 3px solid #8b4513;
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .mode-card:hover {
+            border-color: #d4af37;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .mode-card.selected {
+            border-color: #d4af37;
+            background: linear-gradient(145deg, #4a3827, #3c2820);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+
+        .mode-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .mode-name {
+            font-size: 1.5rem;
+            color: #d4af37;
+            margin-bottom: 10px;
+        }
+
+        .faction-selection-screen {
+            margin-bottom: 20px;
+        }
+
+        .faction-selection {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .faction-card {
+            background: linear-gradient(145deg, #3a2817, #2c1810);
+            border: 3px solid #8b4513;
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .faction-card:hover {
+            border-color: #d4af37;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .faction-card.selected {
+            border-color: #d4af37;
+            background: linear-gradient(145deg, #4a3827, #3c2820);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+
+        .faction-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .faction-name {
+            font-size: 1.5rem;
+            color: #d4af37;
+            margin-bottom: 10px;
+        }
+
+        .opening-selection {
+            margin: 20px 0;
+        }
+
+        .opening-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .opening-btn {
+            background: linear-gradient(145deg, #8b4513, #654321);
+            border: 2px solid #d4af37;
+            color: #f4e4bc;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .opening-btn:hover {
+            background: linear-gradient(145deg, #a0522d, #8b4513);
+            transform: translateY(-2px);
+        }
+
+        .opening-btn.selected {
+            background: linear-gradient(145deg, #d4af37, #b8860b);
+            color: #2c1810;
+        }
+
+        .start-btn {
+            background: linear-gradient(145deg, #d4af37, #b8860b);
+            border: none;
+            color: #2c1810;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(212, 175, 55, 0.4);
+        }
+
+        .start-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .back-btn {
+            background: linear-gradient(145deg, #8b4513, #654321);
+            border: 2px solid #d4af37;
+            color: #f4e4bc;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-right: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(145deg, #a0522d, #8b4513);
+            transform: translateY(-2px);
+        }
+
+        .game-board {
+            display: none;
+            grid-template-columns: 1fr;
+            grid-template-rows: auto auto 1fr;
+            gap: 15px;
+            height: 90vh;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .main-game-area {
+            grid-column: 1;
+            grid-row: 3;
+            display: grid;
+            grid-template-rows: 1fr auto 1fr;
+            gap: 15px;
+            min-height: 0;
+        }
+
+
+
+        .opponent-area, .player-area {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #8b4513;
+        }
+
+        .opponent-area {
+            border-color: #4a90e2;
+        }
+
+        .player-area {
+            border-color: #d4af37;
+        }
+
+        .battle-area {
+            background: rgba(0,0,0,0.5);
+            border-radius: 20px;
+            padding: 50px 40px;
+            border: 4px solid #d4af37;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 300px;
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+        }
+
+        .played-card {
+            width: 160px;
+            height: 240px;
+            background: linear-gradient(145deg, #3a2817, #2c1810);
+            border: 4px solid #8b4513;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            transition: all 0.5s ease;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+        }
+
+        .played-card.revealed {
+            transform: rotateY(180deg);
+        }
+
+        .vs-text {
+            font-size: 2.5rem;
+            color: #d4af37;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+            font-weight: bold;
+            margin: 0 20px;
+        }
+
+        .hand-cards {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .card {
+            width: 100px;
+            height: 150px;
+            background: linear-gradient(145deg, #3a2817, #2c1810);
+            border: 2px solid #8b4513;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 10px;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: #d4af37;
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .card.selected {
+            border-color: #d4af37;
+            background: linear-gradient(145deg, #4a3827, #3c2820);
+            transform: translateY(-15px);
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .card-name {
+            font-size: 0.8rem;
+            color: #d4af37;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .card-level {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #d4af37;
+            color: #2c1810;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .card-description {
+            font-size: 0.6rem;
+            color: #f4e4bc;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .faction-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .faction-icon-small {
+            font-size: 1.5rem;
+        }
+
+        .hand-count {
+            background: rgba(0,0,0,0.5);
+            padding: 5px 10px;
+            border-radius: 15px;
+            border: 1px solid #8b4513;
+        }
+
+        .play-btn {
+            background: linear-gradient(145deg, #d4af37, #b8860b);
+            border: none;
+            color: #2c1810;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .play-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(212, 175, 55, 0.4);
+        }
+
+        .play-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .battle-result {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: 
+                linear-gradient(145deg, rgba(0,0,0,0.95), rgba(44,24,16,0.9)),
+                radial-gradient(circle at center, rgba(139,69,19,0.3), transparent 70%);
+            border-radius: 15px;
+            border: 3px solid #d4af37;
+            box-shadow: 
+                0 8px 25px rgba(0,0,0,0.8),
+                inset 0 2px 4px rgba(212,175,55,0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .result-text {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #f4e4bc;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .continue-btn {
+            background: linear-gradient(145deg, #228b22, #006400);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .continue-btn:hover {
+            background: linear-gradient(145deg, #32cd32, #228b22);
+        }
+
+        .turn-indicator {
+            text-align: center;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            border: 2px solid #d4af37;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            color: #d4af37;
+        }
+
+        .phase-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .phase-step {
+            background: rgba(0,0,0,0.3);
+            border: 2px solid #8b4513;
+            border-radius: 8px;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .phase-step.active {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.2);
+            color: #d4af37;
+        }
+
+        .phase-step.completed {
+            border-color: #228b22;
+            background: rgba(34, 139, 34, 0.2);
+            color: #90ee90;
+        }
+
+        .current-player-indicator {
+            background: rgba(212, 175, 55, 0.2);
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: bold;
+            color: #d4af37;
+        }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: smoothFadeIn 0.6s ease-out;
+        }
+
+        @keyframes smoothFadeIn {
+            0% { 
+                opacity: 0;
+            }
+            100% { 
+                opacity: 1;
+            }
+        }
+
+        .game-over-modal {
+            background: linear-gradient(145deg, #8b4513, #654321);
+            border: 8px solid #2c1810;
+            border-radius: 20px;
+            padding: 50px 40px;
+            text-align: center;
+            max-width: 600px;
+            min-width: 400px;
+            min-height: 400px;
+            position: relative;
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.8),
+                inset 0 2px 4px rgba(212, 175, 55, 0.3);
+            animation: smoothEntrance 0.8s ease-out;
+            transform-origin: center;
+            overflow: hidden;
+        }
+
+        @keyframes smoothEntrance {
+            0% { 
+                transform: scale(0.8) translateY(-30px);
+                opacity: 0;
+            }
+            100% { 
+                transform: scale(1) translateY(0px);
+                opacity: 1;
+            }
+        }
+
+        .game-over-modal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.1);
+            border-radius: 12px;
+            pointer-events: none;
+        }
+
+        .winner-text {
+            font-size: 3rem;
+            color: #d4af37;
+            margin: 30px 0 20px 0;
+            text-shadow: 
+                3px 3px 6px rgba(0,0,0,0.8),
+                0 0 20px rgba(212, 175, 55, 0.6);
+            animation: gentleGlow 3s ease-in-out infinite alternate;
+            position: relative;
+            z-index: 3;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        @keyframes gentleGlow {
+            0% { 
+                text-shadow: 
+                    3px 3px 6px rgba(0,0,0,0.8),
+                    0 0 15px rgba(212, 175, 55, 0.5);
+            }
+            100% { 
+                text-shadow: 
+                    3px 3px 6px rgba(0,0,0,0.8),
+                    0 0 25px rgba(212, 175, 55, 0.8);
+            }
+        }
+
+        @keyframes pulse {
+            0% { 
+                opacity: 0.7;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            100% { 
+                opacity: 0.7;
+                transform: scale(1);
+            }
+        }
+
+        .victory-banner {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, #d4af37, #b8860b);
+            color: #2c1810;
+            padding: 10px 30px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            border: 2px solid #2c1810;
+            z-index: 4;
+            text-transform: uppercase;
+        }
+
+        .corner-decoration {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #d4af37;
+            border: 1px solid #2c1810;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .corner-decoration:nth-child(1) { top: 10px; left: 10px; }
+        .corner-decoration:nth-child(2) { top: 10px; right: 10px; }
+        .corner-decoration:nth-child(3) { bottom: 10px; left: 10px; }
+        .corner-decoration:nth-child(4) { bottom: 10px; right: 10px; }
+
+        .history-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: smoothFadeIn 0.6s ease-out;
+        }
+
+        .history-content {
+            background: linear-gradient(145deg, #3a2817, #2c1810);
+            border: 3px solid #d4af37;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .history-header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #8b4513;
+            padding-bottom: 15px;
+        }
+
+        .history-title {
+            font-size: 2rem;
+            color: #d4af37;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .history-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #8b4513;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            color: #d4af37;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #f4e4bc;
+            margin-top: 5px;
+        }
+
+        .history-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid #8b4513;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            border-color: #d4af37;
+            background: rgba(0,0,0,0.6);
+        }
+
+        .history-item.victory {
+            border-left: 4px solid #32cd32;
+        }
+
+        .history-item.defeat {
+            border-left: 4px solid #dc143c;
+        }
+
+        .history-item.draw {
+            border-left: 4px solid #ffd700;
+        }
+
+        .history-item.completed {
+            border-left: 4px solid #8b4513;
+        }
+
+        .game-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .game-result {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .game-result.victory { color: #32cd32; }
+        .game-result.defeat { color: #dc143c; }
+        .game-result.draw { color: #ffd700; }
+
+        .game-details {
+            font-size: 0.9rem;
+            color: #f4e4bc;
+            line-height: 1.4;
+        }
+
+        .game-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .close-history-btn {
+            background: linear-gradient(145deg, #8b4513, #654321);
+            border: 2px solid #d4af37;
+            color: #f4e4bc;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .close-history-btn:hover {
+            background: linear-gradient(145deg, #a0522d, #8b4513);
+            transform: translateY(-2px);
+        }
+
+        .clear-history-btn {
+            background: linear-gradient(145deg, #8b0000, #654321);
+            border: 2px solid #dc143c;
+            color: #f4e4bc;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .clear-history-btn:hover {
+            background: linear-gradient(145deg, #a0522d, #8b0000);
+            transform: translateY(-1px);
+        }
+
+        .profile-section {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .profile-avatar-section {
+            text-align: center;
+            flex: 0 0 auto;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(145deg, #d4af37, #b8860b);
+            border: 4px solid #2c1810;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto 15px auto;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
+        }
+
+        .avatar-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            max-width: 200px;
+            margin: 0 auto;
+        }
+
+        .avatar-option {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(145deg, #3a2817, #2c1810);
+            border: 2px solid #8b4513;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .avatar-option:hover {
+            border-color: #d4af37;
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .avatar-option.selected {
+            border-color: #d4af37;
+            background: linear-gradient(145deg, #4a3827, #3c2820);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+
+        .profile-info {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .profile-name-section {
+            margin-bottom: 25px;
+        }
+
+        .profile-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: linear-gradient(145deg, #3a2817, #2c1810);
+            border: 2px solid #8b4513;
+            border-radius: 8px;
+            color: #f4e4bc;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .profile-input:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .profile-input::placeholder {
+            color: #999;
+        }
+
+        .profile-title-section {
+            margin-bottom: 20px;
+        }
+
+        .player-title {
+            background: linear-gradient(145deg, #d4af37, #b8860b);
+            color: #2c1810;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+        }
+
+        .title-progress {
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #32cd32, #228b22);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            color: #999;
+            text-align: center;
+        }
+
+        .profile-achievements {
+            margin-bottom: 30px;
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #8b4513;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .achievement-item {
+            background: linear-gradient(145deg, #3a2817, #2c1810);
+            border: 2px solid #8b4513;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .achievement-item.unlocked {
+            border-color: #d4af37;
+            background: linear-gradient(145deg, #4a3827, #3c2820);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .achievement-item.locked {
+            opacity: 0.5;
+            filter: grayscale(100%);
+        }
+
+        .achievement-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .achievement-name {
+            font-size: 1rem;
+            color: #d4af37;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .achievement-desc {
+            font-size: 0.8rem;
+            color: #f4e4bc;
+            line-height: 1.3;
+        }
+
+        .achievement-progress {
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .profile-stats-detailed {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #8b4513;
+        }
+
+        .detailed-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: linear-gradient(145deg, #3a2817, #2c1810);
+            border: 2px solid #8b4513;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: #d4af37;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            color: #d4af37;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-name {
+            font-size: 0.8rem;
+            color: #f4e4bc;
+        }
+
+        @media (max-width: 768px) {
+            .profile-section {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .achievements-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .detailed-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .restart-btn {
+            background: linear-gradient(145deg, #d4af37, #b8860b);
+            border: 3px solid #2c1810;
+            color: #2c1810;
+            padding: 18px 40px;
+            font-size: 1.3rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            position: relative;
+            z-index: 5;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 6px 15px rgba(0,0,0,0.4),
+                inset 0 2px 4px rgba(255,255,255,0.3),
+                inset 0 -2px 4px rgba(0,0,0,0.3);
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 10px 20px rgba(212, 175, 55, 0.5),
+                0 5px 15px rgba(0,0,0,0.6),
+                inset 0 2px 4px rgba(255,255,255,0.4),
+                inset 0 -2px 4px rgba(0,0,0,0.2);
+            background: linear-gradient(145deg, #e6c547, #c9971b);
+            filter: brightness(1.1);
+        }
+
+        .restart-btn:active {
+            transform: translateY(-1px);
+            box-shadow: 
+                0 4px 8px rgba(212, 175, 55, 0.3),
+                inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .special-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            color: #ff6b6b;
+            font-weight: bold;
+            animation: specialEffect 2s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes specialEffect {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .assassin-selection {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .assassin-modal {
+            background: linear-gradient(145deg, #3a2817, #2c1810);
+            border: 3px solid #d4af37;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .assassin-options {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .assassin-option {
+            background: linear-gradient(145deg, #8b4513, #654321);
+            border: 2px solid #d4af37;
+            color: #f4e4bc;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .assassin-option:hover {
+            background: linear-gradient(145deg, #a0522d, #8b4513);
+            transform: translateY(-2px);
+        }
+
+        @keyframes slideDown {
+            0% { 
+                transform: translate(-50%, -100%); 
+                opacity: 0; 
+            }
+            100% { 
+                transform: translate(-50%, 0); 
+                opacity: 1; 
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-title { font-size: 2rem; }
+            .faction-selection { flex-direction: column; align-items: center; }
+            .mode-buttons { flex-direction: column; align-items: center; }
+            
+            .game-board {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr;
+                height: auto;
+                min-height: 100vh;
+                gap: 10px;
+            }
+            
+            .main-game-area {
+                grid-column: 1;
+                grid-row: 3;
+                gap: 10px;
+            }
+            
+            .battle-area { 
+                flex-direction: column; 
+                gap: 20px; 
+                padding: 30px 15px;
+                min-height: 300px;
+            }
+            .hand-cards { gap: 5px; }
+            .card { width: 75px; height: 110px; font-size: 0.75rem; }
+            .played-card { width: 120px; height: 170px; }
+            .vs-text { font-size: 1.8rem; margin: 10px 0; }
+            
+
+        }
+    </style>
 </head>
 <body>
-<!-- 主容器（内容来自 MVP 单文件版，已简化为三文件结构） -->
-<div id="app">Loading...</div>
-<script src="game.js"></script>
-</body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">⚔️ 王与奴 ⚔️</h1>
+            <p class="game-subtitle">中世纪卡牌回合制对战游戏</p>
+            <p style="font-size: 0.9rem; margin: 5px 0;">王权与枷锁在同一桌上较量</p>
+        </div>
+
+        <div id="setupScreen" class="setup-screen">
+            <div id="modeSelection" class="mode-selection">
+                <h2 style="color: #d4af37; margin-bottom: 20px;">选择游戏模式</h2>
+                <div class="mode-buttons">
+                    <div class="mode-card" data-mode="ai">
+                        <div class="mode-icon">🤖</div>
+                        <div class="mode-name">与AI对战</div>
+                        <p>挑战智能AI对手<br>单人游戏体验</p>
+                    </div>
+                    <div class="mode-card" data-mode="local">
+                        <div class="mode-icon">👥</div>
+                        <div class="mode-name">本地对战</div>
+                        <p>与朋友面对面对战<br>双人轮流游戏</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="factionSelection" class="faction-selection-screen" style="display: none;">
+                <h2 style="color: #d4af37; margin-bottom: 20px;">选择你的阵营</h2>
+                
+                <div class="faction-selection">
+                    <div class="faction-card" data-faction="king">
+                        <div class="faction-icon">👑</div>
+                        <div class="faction-name">国王方</div>
+                        <p>守护王座的统治者<br>拥有强大的关键牌</p>
+                    </div>
+                    
+                    <div class="faction-card" data-faction="slave">
+                        <div class="faction-icon">🩸</div>
+                        <div class="faction-name">奴隶方</div>
+                        <p>渴望推翻统治的反叛者<br>以弱胜强的挑战者</p>
+                    </div>
+                </div>
+
+                <div id="openingSelection" class="opening-selection" style="display: none;">
+                    <h3 style="color: #d4af37;">选择开局方式</h3>
+                    <div class="opening-buttons">
+                        <button class="opening-btn" data-opening="king">👑 国王开局</button>
+                        <button class="opening-btn" data-opening="queen">💐 女王开局</button>
+                    </div>
+                    <p style="font-size: 0.9rem; margin-top: 10px; color: #f4e4bc;">不同开局拥有不同的卡牌组合和策略</p>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button id="backToModeBtn" class="back-btn">返回</button>
+                    <button id="startGame" class="start-btn" disabled>开始游戏</button>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px; flex-wrap: wrap;">
+                <button id="showHistoryBtn" class="start-btn" style="background: linear-gradient(145deg, #8b4513, #654321);">查看战绩</button>
+                <button id="showProfileBtn" class="start-btn" style="background: linear-gradient(145deg, #4a90e2, #2c5aa0);">个人主页</button>
+            </div>
+        </div>
+
+        <div id="gameBoard" class="game-board">
+            <div style="display: flex; justify-content: flex-start; align-items: center; margin-bottom: 10px; grid-column: 1; grid-row: 1; padding: 0 20px;">
+                <button id="backToHomeBtn" class="back-btn">主页</button>
+            </div>
+            
+            <div id="turnIndicator" class="turn-indicator" style="grid-column: 1; grid-row: 2;">
+                <div>第 <span id="turnNumber">1</span> 回合</div>
+                <div class="phase-indicator">
+                    <div class="phase-step active" id="phaseSelect">选择卡牌</div>
+                    <div class="phase-step" id="phaseReveal">同时翻牌</div>
+                    <div class="phase-step" id="phaseBattle">战斗结算</div>
+                    <div class="phase-step" id="phaseEnd">回合结束</div>
+                </div>
+            </div>
+
+            <div class="main-game-area">
+                <div class="opponent-area">
+                    <div id="currentPlayerIndicator" class="current-player-indicator" style="display: none;">
+                        轮到你了！请选择卡牌
+                    </div>
+                    <div class="game-info">
+                        <div class="faction-info">
+                            <span id="opponentFaction" class="faction-icon-small">🤖</span>
+                            <span id="opponentName">AI对手</span>
+                        </div>
+                        <div class="hand-count">
+                            手牌: <span id="opponentHandCount">6</span>
+                        </div>
+                    </div>
+                    <div id="opponentHandCards" class="hand-cards" style="display: none;"></div>
+                    <div style="text-align: center; color: #4a90e2;">对手区域</div>
+                </div>
+
+                <div class="battle-area">
+                    <div id="opponentPlayedCard" class="played-card">
+                        <div style="font-size: 1.2rem;">等待出牌</div>
+                    </div>
+                    <div class="vs-text">⚔️ VS ⚔️</div>
+                    <div id="playerPlayedCard" class="played-card">
+                        <div style="font-size: 1.2rem;">等待出牌</div>
+                    </div>
+                </div>
+
+                <div class="player-area">
+                    <div id="currentPlayerIndicator2" class="current-player-indicator" style="display: none;">
+                        轮到你了！请选择卡牌
+                    </div>
+                    <div class="game-info">
+                        <div class="faction-info">
+                            <span id="playerFaction" class="faction-icon-small">👑</span>
+                            <span id="playerFactionName">国王方</span>
+                        </div>
+                        <div class="hand-count">
+                            手牌: <span id="playerHandCount">6</span>
+                        </div>
+                    </div>
+                    <div id="playerHand" class="hand-cards"></div>
+                    <div style="display: flex; gap: 15px; justify-content: center; margin-top: 15px;">
+                        <button id="playCardBtn" class="play-btn" disabled>出牌</button>
+                        <button id="surrenderBtn" class="back-btn" style="background: linear-gradient(145deg, #8b0000, #654321); border-color: #dc143c;">认输</button>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div id="battleResult" class="battle-result" style="display: none;">
+            <div id="resultText" class="result-text"></div>
+            <button id="continueBtn" class="continue-btn">继续</button>
+        </div>
+
+        <div id="gameOver" class="game-over" style="display: none;">
+            <div class="game-over-modal">
+                <div class="corner-decoration"></div>
+                <div class="corner-decoration"></div>
+                <div class="corner-decoration"></div>
+                <div class="corner-decoration"></div>
+                <div class="victory-banner">🏆 游戏结束 🏆</div>
+                <div id="winnerText" class="winner-text"></div>
+                <p id="gameOverReason" style="font-size: 1.4rem; margin-bottom: 35px; color: #f4e4bc; position: relative; z-index: 3; line-height: 1.6; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); font-weight: 500; letter-spacing: 0.5px; max-width: 500px; margin-left: auto; margin-right: auto;"></p>
+                <div style="margin: 20px 0; font-size: 1.2rem; color: #d4af37; position: relative; z-index: 3; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); font-weight: bold;">
+                    ⚔️ 战斗已落下帷幕 ⚔️
+                </div>
+                <button id="restartBtn" class="restart-btn">重新开始</button>
+            </div>
+        </div>
+
+        <div id="assassinSelection" class="assassin-selection">
+            <div class="assassin-modal">
+                <h3 style="color: #d4af37; margin-bottom: 20px;">🔪 刺客技能发动</h3>
+                <p style="margin-bottom: 20px;">选择刺杀目标：</p>
+                <div id="assassinOptions" class="assassin-options"></div>
+            </div>
+        </div>
+
+        <div id="historyModal" class="history-modal">
+            <div class="history-content">
+                <div class="history-header">
+                    <h2 class="history-title">⚔️ 历史战绩 ⚔️</h2>
+                </div>
+                
+                <div id="historyStats" class="history-stats">
+                    <div class="stat-item">
+                        <span id="totalGames" class="stat-number">0</span>
+                        <div class="stat-label">总场次</div>
+                    </div>
+                    <div class="stat-item">
+                        <span id="victories" class="stat-number">0</span>
+                        <div class="stat-label">胜利</div>
+                    </div>
+                    <div class="stat-item">
+                        <span id="defeats" class="stat-number">0</span>
+                        <div class="stat-label">失败</div>
+                    </div>
+                    <div class="stat-item">
+                        <span id="draws" class="stat-number">0</span>
+                        <div class="stat-label">平局</div>
+                    </div>
+                    <div class="stat-item">
+                        <span id="winRate" class="stat-number">0%</span>
+                        <div class="stat-label">胜率</div>
+                    </div>
+                </div>
+
+                <div id="historyList" class="history-list">
+                    <!-- 历史记录将在这里动态生成 -->
+                </div>
+
+                <div style="text-align: center;">
+                    <button id="closeHistoryBtn" class="close-history-btn">关闭</button>
+                    <button id="clearHistoryBtn" class="clear-history-btn">清空记录</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="profileModal" class="history-modal">
+            <div class="history-content">
+                <div class="history-header">
+                    <h2 class="history-title">👤 个人主页 👤</h2>
+                </div>
+                
+                <div class="profile-section">
+                    <div class="profile-avatar-section">
+                        <div id="profileAvatar" class="profile-avatar">⚔️</div>
+                        <div class="avatar-options">
+                            <div class="avatar-option" data-avatar="⚔️">⚔️</div>
+                            <div class="avatar-option" data-avatar="👑">👑</div>
+                            <div class="avatar-option" data-avatar="🩸">🩸</div>
+                            <div class="avatar-option" data-avatar="🛡️">🛡️</div>
+                            <div class="avatar-option" data-avatar="🗡️">🗡️</div>
+                            <div class="avatar-option" data-avatar="🏰">🏰</div>
+                            <div class="avatar-option" data-avatar="⚡">⚡</div>
+                            <div class="avatar-option" data-avatar="🔥">🔥</div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-info">
+                        <div class="profile-name-section">
+                            <label for="playerName" style="color: #d4af37; font-weight: bold; margin-bottom: 8px; display: block;">玩家昵称：</label>
+                            <input type="text" id="playerName" class="profile-input" placeholder="输入你的昵称" maxlength="12">
+                        </div>
+                        
+                        <div class="profile-title-section">
+                            <label style="color: #d4af37; font-weight: bold; margin-bottom: 8px; display: block;">称号：</label>
+                            <div id="playerTitle" class="player-title">新手勇士</div>
+                            <div class="title-progress">
+                                <div class="progress-bar">
+                                    <div id="titleProgress" class="progress-fill"></div>
+                                </div>
+                                <div id="titleProgressText" class="progress-text">0/5 胜利解锁下一称号</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-achievements">
+                    <h3 style="color: #d4af37; margin-bottom: 15px; text-align: center;">🏆 成就系统 🏆</h3>
+                    <div id="achievementsList" class="achievements-grid">
+                        <!-- 成就将在这里动态生成 -->
+                    </div>
+                </div>
+
+                <div class="profile-stats-detailed">
+                    <h3 style="color: #d4af37; margin-bottom: 15px; text-align: center;">📊 详细统计 📊</h3>
+                    <div class="detailed-stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">⚔️</div>
+                            <div class="stat-value" id="totalBattles">0</div>
+                            <div class="stat-name">总战斗数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">👑</div>
+                            <div class="stat-value" id="kingWins">0</div>
+                            <div class="stat-name">国王方胜利</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🩸</div>
+                            <div class="stat-value" id="slaveWins">0</div>
+                            <div class="stat-name">奴隶方胜利</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🔥</div>
+                            <div class="stat-value" id="winStreak">0</div>
+                            <div class="stat-name">最高连胜</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⏱️</div>
+                            <div class="stat-value" id="avgGameTime">0分</div>
+                            <div class="stat-name">平均游戏时长</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🎯</div>
+                            <div class="stat-value" id="favoriteCard">市民</div>
+                            <div class="stat-name">最常用卡牌</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="saveProfileBtn" class="close-history-btn" style="background: linear-gradient(145deg, #32cd32, #228b22); border-color: #32cd32;">保存设置</button>
+                    <button id="closeProfileBtn" class="close-history-btn">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 游戏状态
+        let gameState = {
+            gameMode: null, // 'ai' 或 'local'
+            playerFaction: null,
+            playerOpening: null,
+            player1Hand: [], // 本地对战时的玩家1手牌
+            player2Hand: [], // 本地对战时的玩家2手牌
+            playerHand: [], // AI对战时的玩家手牌
+            opponentHand: [], // AI对战时的对手手牌
+            currentPlayer: 1, // 本地对战时的当前玩家 (1 或 2)
+            playerSelectedCard: null,
+            opponentSelectedCard: null,
+            playerPlayedCard: null,
+            opponentPlayedCard: null,
+            gamePhase: 'setup', // setup, select, reveal, battle, end, gameOver
+            currentTurn: 1,
+            royalGuardProtection: false,
+            ultimateGuardUsedLastTurn: false,
+            queenDead: false,
+            kingInPlay: false,
+            opponentReady: false,
+            playerReady: false,
+            player1Ready: false, // 本地对战专用
+            player2Ready: false, // 本地对战专用
+            currentGameRecord: {
+                gameId: null,
+                startTime: null,
+                gameMode: null,
+                playerFaction: null,
+                playerOpening: null,
+                opponentFaction: null,
+                battles: [],
+                result: null,
+                endTime: null,
+                totalTurns: 0
+            }
+        };
+
+        // 历史战绩存储 - 增强错误处理
+        let gameHistory = [];
+        let playerProfile = {
+            name: '',
+            avatar: '⚔️',
+            title: '新手勇士',
+            achievements: [],
+            stats: {
+                totalBattles: 0,
+                kingWins: 0,
+                slaveWins: 0,
+                maxWinStreak: 0,
+                currentWinStreak: 0,
+                totalGameTime: 0,
+                cardUsageCount: {}
+            }
+        };
+
+        // 安全加载本地存储数据
+        function loadLocalData() {
+            try {
+                const historyData = localStorage.getItem('kingSlaveGameHistory');
+                if (historyData) {
+                    gameHistory = JSON.parse(historyData);
+                    console.log('加载历史记录:', gameHistory.length, '条');
+                }
+            } catch (e) {
+                console.error('加载历史记录失败:', e);
+                gameHistory = [];
+            }
+
+            try {
+                const profileData = localStorage.getItem('kingSlavePlayerProfile');
+                if (profileData) {
+                    const loadedProfile = JSON.parse(profileData);
+                    playerProfile = { ...playerProfile, ...loadedProfile };
+                    console.log('加载玩家档案:', playerProfile);
+                }
+            } catch (e) {
+                console.error('加载玩家档案失败:', e);
+            }
+        }
+
+        // 安全保存数据到本地存储
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('kingSlaveGameHistory', JSON.stringify(gameHistory));
+                localStorage.setItem('kingSlavePlayerProfile', JSON.stringify(playerProfile));
+                console.log('数据保存成功 - 历史记录:', gameHistory.length, '条');
+                return true;
+            } catch (e) {
+                console.error('保存数据失败:', e);
+                // 显示保存失败提示
+                showNotification('数据保存失败，请检查浏览器存储权限', 'error');
+                return false;
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${type === 'error' ? 'linear-gradient(145deg, #dc143c, #8b0000)' : 'linear-gradient(145deg, #32cd32, #228b22)'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-weight: bold;
+                animation: slideDown 0.3s ease-out;
+            `;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideDown 0.3s ease-out reverse';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // 初始化时加载数据
+        loadLocalData();
+
+        // 称号系统
+        const titleSystem = [
+            { name: '新手勇士', requirement: 0, icon: '🔰' },
+            { name: '见习骑士', requirement: 5, icon: '⚔️' },
+            { name: '王室护卫', requirement: 15, icon: '🛡️' },
+            { name: '宫廷剑士', requirement: 30, icon: '🗡️' },
+            { name: '传奇英雄', requirement: 50, icon: '🏆' },
+            { name: '王座征服者', requirement: 100, icon: '👑' },
+            { name: '不朽传说', requirement: 200, icon: '⭐' }
+        ];
+
+        // 成就系统
+        const achievementSystem = [
+            {
+                id: 'first_victory',
+                name: '初次胜利',
+                description: '赢得你的第一场胜利',
+                icon: '🎉',
+                requirement: { type: 'victories', count: 1 },
+                unlocked: false
+            },
+            {
+                id: 'win_streak_5',
+                name: '连胜达人',
+                description: '连续获得5场胜利',
+                icon: '🔥',
+                requirement: { type: 'winStreak', count: 5 },
+                unlocked: false
+            },
+            {
+                id: 'king_master',
+                name: '王者之路',
+                description: '使用国王方获得10场胜利',
+                icon: '👑',
+                requirement: { type: 'kingWins', count: 10 },
+                unlocked: false
+            },
+            {
+                id: 'slave_rebel',
+                name: '反叛之魂',
+                description: '使用奴隶方获得10场胜利',
+                icon: '🩸',
+                requirement: { type: 'slaveWins', count: 10 },
+                unlocked: false
+            },
+            {
+                id: 'battle_veteran',
+                name: '战场老兵',
+                description: '完成50场对战',
+                icon: '⚔️',
+                requirement: { type: 'totalBattles', count: 50 },
+                unlocked: false
+            },
+            {
+                id: 'assassin_master',
+                name: '刺客大师',
+                description: '使用刺客卡牌20次',
+                icon: '🗡️',
+                requirement: { type: 'cardUsage', card: 'assassin', count: 20 },
+                unlocked: false
+            },
+            {
+                id: 'quick_victory',
+                name: '闪电战',
+                description: '在3回合内结束一场游戏',
+                icon: '⚡',
+                requirement: { type: 'quickWin', turns: 3 },
+                unlocked: false
+            },
+            {
+                id: 'marathon_player',
+                name: '马拉松玩家',
+                description: '累计游戏时间超过1小时',
+                icon: '⏰',
+                requirement: { type: 'totalTime', minutes: 60 },
+                unlocked: false
+            }
+        ];
+
+        // 卡牌定义
+        const cardDefinitions = {
+            citizen: { name: '市民', icon: '👨', level: 1, type: 'basic', description: '基础单位' },
+            assassin: { name: '刺客', icon: '🗡️', level: 2, type: 'basic', description: '刺杀出牌或抽牌' },
+            butcher: { name: '屠夫', icon: '⚒️', level: 2, type: 'basic', description: '同归于尽' },
+            guard: { name: '守卫', icon: '🛡️', level: 2, type: 'basic', description: '基础防御' },
+            royalGuard: { name: '皇家守卫', icon: '🛡️', level: 2, type: 'special', description: '死后护王' },
+            ultimateGuard: { name: '终极守卫', icon: '🛡️', level: 3, type: 'special', description: '最强守护' },
+            slave: { name: '奴隶', icon: '🙇', level: 0, type: 'basic', description: '能击败国王' },
+            king: { name: '国王', icon: '👑', level: 3, type: 'key', description: '关键牌' },
+            queen: { name: '女王', icon: '💐', level: 1, type: 'key', description: '死后召王' }
+        };
+
+        // 卡组定义
+        const deckDefinitions = {
+            kingOpening: ['citizen', 'citizen', 'assassin', 'butcher', 'royalGuard', 'king'],
+            queenOpening: ['citizen', 'citizen', 'assassin', 'butcher', 'ultimateGuard', 'queen'],
+            slave: ['citizen', 'citizen', 'assassin', 'butcher', 'guard', 'slave', 'slave']
+        };
+
+        // 初始化游戏
+        function initGame() {
+            document.getElementById('setupScreen').style.display = 'block';
+            document.getElementById('gameBoard').style.display = 'none';
+            document.getElementById('battleResult').style.display = 'none';
+            document.getElementById('gameOver').style.display = 'none';
+            document.getElementById('modeSelection').style.display = 'block';
+            document.getElementById('factionSelection').style.display = 'none';
+            
+            // 重置游戏状态
+            gameState = {
+                gameMode: null,
+                playerFaction: null,
+                playerOpening: null,
+                player1Hand: [],
+                player2Hand: [],
+                playerHand: [],
+                opponentHand: [],
+                currentPlayer: 1,
+                playerSelectedCard: null,
+                opponentSelectedCard: null,
+                playerPlayedCard: null,
+                opponentPlayedCard: null,
+                gamePhase: 'setup',
+                currentTurn: 1,
+                royalGuardProtection: false,
+                ultimateGuardUsedLastTurn: false,
+                queenDead: false,
+                kingInPlay: false,
+                opponentReady: false,
+                playerReady: false,
+                player1Ready: false,
+                player2Ready: false
+            };
+        }
+
+        // 模式选择
+        document.querySelectorAll('.mode-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                gameState.gameMode = this.dataset.mode;
+                
+                // 显示阵营选择
+                document.getElementById('modeSelection').style.display = 'none';
+                document.getElementById('factionSelection').style.display = 'block';
+                
+                // 更新界面文本
+                if (gameState.gameMode === 'local') {
+                    document.querySelector('#factionSelection h2').textContent = '玩家1选择阵营';
+                } else {
+                    document.querySelector('#factionSelection h2').textContent = '选择你的阵营';
+                }
+            });
+        });
+
+        // 返回模式选择
+        document.getElementById('backToModeBtn').addEventListener('click', function() {
+            document.getElementById('modeSelection').style.display = 'block';
+            document.getElementById('factionSelection').style.display = 'none';
+            gameState.gameMode = null;
+            gameState.playerFaction = null;
+            gameState.playerOpening = null;
+            
+            // 重置选择状态
+            document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+            document.querySelectorAll('.faction-card').forEach(c => c.classList.remove('selected'));
+            document.querySelectorAll('.opening-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById('openingSelection').style.display = 'none';
+            updateStartButton();
+        });
+
+        // 阵营选择
+        document.querySelectorAll('.faction-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.faction-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                gameState.playerFaction = this.dataset.faction;
+                
+                const openingSelection = document.getElementById('openingSelection');
+                if (gameState.playerFaction === 'king') {
+                    openingSelection.style.display = 'block';
+                } else {
+                    openingSelection.style.display = 'none';
+                    gameState.playerOpening = 'slave';
+                }
+                
+                updateStartButton();
+            });
+        });
+
+        // 开局选择
+        document.querySelectorAll('.opening-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.opening-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                gameState.playerOpening = this.dataset.opening;
+                updateStartButton();
+            });
+        });
+
+        function updateStartButton() {
+            const startBtn = document.getElementById('startGame');
+            if (gameState.playerFaction && gameState.playerOpening) {
+                startBtn.disabled = false;
+            } else {
+                startBtn.disabled = true;
+            }
+        }
+
+        // 开始游戏
+        document.getElementById('startGame').addEventListener('click', startGame);
+
+        function startGame() {
+            gameState.gamePhase = 'select';
+            gameState.currentTurn = 1;
+            
+            // 初始化游戏记录
+            gameState.currentGameRecord = {
+                gameId: Date.now() + Math.random().toString(36).substr(2, 9),
+                startTime: new Date(),
+                gameMode: gameState.gameMode,
+                playerFaction: gameState.playerFaction,
+                playerOpening: gameState.playerOpening,
+                opponentFaction: gameState.playerFaction === 'king' ? 'slave' : 'king',
+                battles: [],
+                result: null,
+                endTime: null,
+                totalTurns: 0
+            };
+            
+            if (gameState.gameMode === 'ai') {
+                setupAIGame();
+            } else {
+                setupLocalGame();
+            }
+            
+            // 显示游戏界面
+            document.getElementById('setupScreen').style.display = 'none';
+            document.getElementById('gameBoard').style.display = 'grid';
+            
+
+            
+            // 更新UI
+            updateGameUI();
+            updatePhaseIndicator();
+            
+            if (gameState.gameMode === 'ai') {
+                // AI自动选择卡牌（延迟模拟思考）
+                setTimeout(() => {
+                    aiSelectCard();
+                }, 1000 + Math.random() * 2000);
+            } else {
+                // 本地对战模式，显示当前玩家指示器
+                updateCurrentPlayerIndicator();
+            }
+        }
+
+        function setupAIGame() {
+            // 设置玩家卡组
+            if (gameState.playerFaction === 'king') {
+                gameState.playerHand = [...deckDefinitions[gameState.playerOpening + 'Opening']];
+            } else {
+                gameState.playerHand = [...deckDefinitions.slave];
+            }
+            
+            // 设置AI对手卡组（随机选择）
+            const aiOptions = gameState.playerFaction === 'king' ? ['slave'] : ['kingOpening', 'queenOpening'];
+            const aiChoice = aiOptions[Math.floor(Math.random() * aiOptions.length)];
+            gameState.opponentHand = [...deckDefinitions[aiChoice]];
+            
+            // 记录AI的开局选择
+            gameState.aiOpening = aiChoice;
+        }
+
+        function setupLocalGame() {
+            // 本地对战：玩家1是选择的阵营，玩家2是对方阵营
+            if (gameState.playerFaction === 'king') {
+                gameState.player1Hand = [...deckDefinitions[gameState.playerOpening + 'Opening']];
+                // 玩家2随机选择奴隶开局
+                gameState.player2Hand = [...deckDefinitions.slave];
+            } else {
+                gameState.player1Hand = [...deckDefinitions.slave];
+                // 玩家2随机选择国王开局
+                const kingOptions = ['kingOpening', 'queenOpening'];
+                const kingChoice = kingOptions[Math.floor(Math.random() * kingOptions.length)];
+                gameState.player2Hand = [...deckDefinitions[kingChoice]];
+            }
+            
+            // 设置当前显示的手牌
+            gameState.playerHand = [...gameState.player1Hand];
+            gameState.opponentHand = [...gameState.player2Hand];
+        }
+
+        function updateCurrentPlayerIndicator() {
+            if (gameState.gameMode !== 'local') return;
+            
+            const indicator1 = document.getElementById('currentPlayerIndicator');
+            const indicator2 = document.getElementById('currentPlayerIndicator2');
+            
+            if (gameState.currentPlayer === 1) {
+                indicator2.style.display = 'block';
+                indicator1.style.display = 'none';
+                indicator2.textContent = '玩家1的回合！请选择卡牌';
+            } else {
+                indicator1.style.display = 'block';
+                indicator2.style.display = 'none';
+                indicator1.textContent = '玩家2的回合！请选择卡牌';
+                
+                // 显示玩家2的手牌
+                document.getElementById('opponentHandCards').style.display = 'flex';
+                updateOpponentHand();
+            }
+        }
+
+        function updateGameUI() {
+            // 更新阵营显示
+            const playerFactionIcon = document.getElementById('playerFaction');
+            const playerFactionName = document.getElementById('playerFactionName');
+            const opponentFaction = document.getElementById('opponentFaction');
+            const opponentName = document.getElementById('opponentName');
+            
+            if (gameState.gameMode === 'ai') {
+                if (gameState.playerFaction === 'king') {
+                    playerFactionIcon.textContent = '👑';
+                    playerFactionName.textContent = '国王方';
+                    opponentFaction.textContent = '🩸';
+                    opponentName.textContent = 'AI对手 (奴隶方)';
+                } else {
+                    playerFactionIcon.textContent = '🩸';
+                    playerFactionName.textContent = '奴隶方';
+                    opponentFaction.textContent = '👑';
+                    opponentName.textContent = 'AI对手 (国王方)';
+                }
+            } else {
+                // 本地对战模式
+                if (gameState.playerFaction === 'king') {
+                    playerFactionIcon.textContent = '👑';
+                    playerFactionName.textContent = '玩家1 (国王方)';
+                    opponentFaction.textContent = '🩸';
+                    opponentName.textContent = '玩家2 (奴隶方)';
+                } else {
+                    playerFactionIcon.textContent = '🩸';
+                    playerFactionName.textContent = '玩家1 (奴隶方)';
+                    opponentFaction.textContent = '👑';
+                    opponentName.textContent = '玩家2 (国王方)';
+                }
+            }
+            
+            // 更新回合数
+            document.getElementById('turnNumber').textContent = gameState.currentTurn;
+            
+            // 更新手牌数量
+            document.getElementById('playerHandCount').textContent = gameState.playerHand.length;
+            document.getElementById('opponentHandCount').textContent = gameState.opponentHand.length;
+            
+            // 开局信息已移除，保持界面简洁
+            
+            // 更新手牌显示
+            updatePlayerHand();
+            
+            if (gameState.gameMode === 'local') {
+                updateCurrentPlayerIndicator();
+            }
+        }
+
+        // 开局信息显示功能已移除，保持界面简洁
+
+        function updatePhaseIndicator() {
+            // 重置所有阶段
+            document.querySelectorAll('.phase-step').forEach(step => {
+                step.classList.remove('active', 'completed');
+            });
+            
+            // 根据当前阶段更新指示器
+            switch(gameState.gamePhase) {
+                case 'select':
+                    document.getElementById('phaseSelect').classList.add('active');
+                    break;
+                case 'reveal':
+                    document.getElementById('phaseSelect').classList.add('completed');
+                    document.getElementById('phaseReveal').classList.add('active');
+                    break;
+                case 'battle':
+                    document.getElementById('phaseSelect').classList.add('completed');
+                    document.getElementById('phaseReveal').classList.add('completed');
+                    document.getElementById('phaseBattle').classList.add('active');
+                    break;
+                case 'end':
+                    document.getElementById('phaseSelect').classList.add('completed');
+                    document.getElementById('phaseReveal').classList.add('completed');
+                    document.getElementById('phaseBattle').classList.add('completed');
+                    document.getElementById('phaseEnd').classList.add('active');
+                    break;
+            }
+        }
+
+        function updatePlayerHand() {
+            const handContainer = document.getElementById('playerHand');
+            handContainer.innerHTML = '';
+            
+            gameState.playerHand.forEach((cardId, index) => {
+                const card = cardDefinitions[cardId];
+                const cardElement = createCardElement(card, cardId, index, false);
+                handContainer.appendChild(cardElement);
+            });
+        }
+
+        function updateOpponentHand() {
+            const handContainer = document.getElementById('opponentHandCards');
+            handContainer.innerHTML = '';
+            
+            gameState.opponentHand.forEach((cardId, index) => {
+                const card = cardDefinitions[cardId];
+                const cardElement = createCardElement(card, cardId, index, true);
+                handContainer.appendChild(cardElement);
+            });
+        }
+
+        function createCardElement(card, cardId, index, isOpponent = false) {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'card';
+            cardDiv.dataset.cardIndex = index;
+            cardDiv.dataset.cardId = cardId;
+            cardDiv.dataset.isOpponent = isOpponent;
+            
+            // 特殊情况：女王只能在剩余一张牌时出场
+            const currentHand = isOpponent ? gameState.opponentHand : gameState.playerHand;
+            if (cardId === 'queen' && currentHand.length > 1) {
+                cardDiv.style.opacity = '0.5';
+                cardDiv.style.cursor = 'not-allowed';
+                cardDiv.title = '女王只能在手牌剩余一张时出场';
+            }
+            
+            // 特殊情况：终极守卫不能连续出动
+            if (cardId === 'ultimateGuard' && gameState.ultimateGuardUsedLastTurn) {
+                cardDiv.style.opacity = '0.5';
+                cardDiv.style.cursor = 'not-allowed';
+            }
+            
+            cardDiv.innerHTML = `
+                <div class="card-level">${card.level}</div>
+                <div class="card-icon">${card.icon}</div>
+                <div class="card-name">${card.name}</div>
+                <div class="card-description">${card.description}</div>
+            `;
+            
+            cardDiv.addEventListener('click', function() {
+                // 检查女王出牌限制
+                if (cardId === 'queen' && currentHand.length > 1) {
+                    return;
+                }
+                
+                // 检查终极守卫连续使用限制
+                if (cardId === 'ultimateGuard' && gameState.ultimateGuardUsedLastTurn) {
+                    return;
+                }
+                
+                if (gameState.gameMode === 'local' && isOpponent) {
+                    // 本地对战模式下的对手区域选择
+                    if (gameState.currentPlayer !== 2) return;
+                    
+                    document.querySelectorAll('#opponentHandCards .card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    gameState.opponentSelectedCard = parseInt(this.dataset.cardIndex);
+                    
+                    // 检查是否可以出牌
+                    checkLocalPlayReady();
+                } else if (!isOpponent) {
+                    // 玩家区域选择
+                    if (gameState.gameMode === 'local' && gameState.currentPlayer !== 1) return;
+                    
+                    document.querySelectorAll('#playerHand .card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    gameState.playerSelectedCard = parseInt(this.dataset.cardIndex);
+                    
+                    if (gameState.gameMode === 'ai') {
+                        document.getElementById('playCardBtn').disabled = false;
+                    } else {
+                        checkLocalPlayReady();
+                    }
+                }
+            });
+            
+            return cardDiv;
+        }
+
+        function checkLocalPlayReady() {
+            if (gameState.gameMode !== 'local') return;
+            
+            const playBtn = document.getElementById('playCardBtn');
+            
+            if (gameState.playerSelectedCard !== null && gameState.opponentSelectedCard !== null) {
+                playBtn.disabled = false;
+                playBtn.textContent = '双方出牌';
+            } else if (gameState.playerSelectedCard !== null && gameState.currentPlayer === 1) {
+                playBtn.disabled = false;
+                playBtn.textContent = '玩家1出牌';
+            } else if (gameState.opponentSelectedCard !== null && gameState.currentPlayer === 2) {
+                playBtn.disabled = false;
+                playBtn.textContent = '玩家2出牌';
+            } else {
+                playBtn.disabled = true;
+                playBtn.textContent = '出牌';
+            }
+        }
+
+        // AI选择卡牌 - 智能策略
+        function aiSelectCard() {
+            if (gameState.opponentHand.length === 0) return;
+            
+            // AI思考延迟（模拟真实思考过程）
+            const thinkingTime = 800 + Math.random() * 1500;
+            
+            // 显示AI思考状态
+            const thinkingIndicator = document.createElement('div');
+            thinkingIndicator.className = 'ai-thinking-indicator';
+            thinkingIndicator.innerHTML = '🤔 AI正在思考...';
+            thinkingIndicator.style.cssText = `
+                background: rgba(0,0,0,0.7);
+                color: #ffd700;
+                padding: 8px 15px;
+                border-radius: 8px;
+                margin-top: 10px;
+                text-align: center;
+                border: 1px solid #ffd700;
+                animation: pulse 1.5s ease-in-out infinite alternate;
+            `;
+            
+            const opponentArea = document.querySelector('.opponent-area');
+            const existingIndicator = opponentArea.querySelector('.ai-selected-indicator, .ai-thinking-indicator');
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
+            opponentArea.appendChild(thinkingIndicator);
+            
+            setTimeout(() => {
+                const opponentCardIndex = aiChooseCard();
+                gameState.opponentSelectedCard = opponentCardIndex;
+                gameState.opponentReady = true;
+                
+                // 移除思考指示器
+                thinkingIndicator.remove();
+                
+                // 显示AI已准备
+                document.querySelector('.opponent-area').style.borderColor = '#32cd32';
+                
+                // 显示AI选择的卡牌（背面）
+                const selectedCardElement = document.createElement('div');
+                selectedCardElement.className = 'ai-selected-indicator';
+                selectedCardElement.innerHTML = '🎴 AI已选择卡牌';
+                selectedCardElement.style.cssText = `
+                    background: rgba(0,0,0,0.7);
+                    color: #32cd32;
+                    padding: 8px 15px;
+                    border-radius: 8px;
+                    margin-top: 10px;
+                    text-align: center;
+                    border: 1px solid #32cd32;
+                `;
+                
+                opponentArea.appendChild(selectedCardElement);
+                
+                checkBothReady();
+            }, thinkingTime);
+        }
+
+        // AI智能选牌策略
+        function aiChooseCard() {
+            const hand = gameState.opponentHand;
+            const playerHand = gameState.playerHand;
+            const turn = gameState.currentTurn;
+            
+            // 分析当前局势
+            const gameAnalysis = analyzeGameState();
+            
+            // 为每张牌计算优先级分数
+            let cardScores = hand.map((cardId, index) => {
+                return {
+                    index: index,
+                    cardId: cardId,
+                    score: calculateCardScore(cardId, gameAnalysis)
+                };
+            });
+            
+            // 按分数排序，选择最高分的牌
+            cardScores.sort((a, b) => b.score - a.score);
+            
+            // 添加一些随机性，避免过于机械化
+            const topCards = cardScores.filter(card => card.score >= cardScores[0].score - 10);
+            const selectedCard = topCards[Math.floor(Math.random() * topCards.length)];
+            
+            return selectedCard.index;
+        }
+
+        // 分析游戏状态
+        function analyzeGameState() {
+            const playerHand = gameState.playerHand;
+            const opponentHand = gameState.opponentHand;
+            const turn = gameState.currentTurn;
+            
+            // 分析玩家可能的威胁
+            const playerHasKing = playerHand.includes('king');
+            const playerHasQueen = playerHand.includes('queen');
+            const playerHasSlave = playerHand.includes('slave');
+            const playerHasAssassin = playerHand.includes('assassin');
+            const playerHasButcher = playerHand.includes('butcher');
+            
+            // 分析自己的资源
+            const aiHasKing = opponentHand.includes('king');
+            const aiHasQueen = opponentHand.includes('queen');
+            const aiHasSlave = opponentHand.includes('slave');
+            const aiHasAssassin = opponentHand.includes('assassin');
+            const aiHasUltimateGuard = opponentHand.includes('ultimateGuard');
+            
+            // 计算手牌优势
+            const handAdvantage = opponentHand.length - playerHand.length;
+            
+            // 判断游戏阶段
+            let gamePhase = 'early';
+            if (turn > 3 || playerHand.length <= 3 || opponentHand.length <= 3) {
+                gamePhase = 'mid';
+            }
+            if (turn > 5 || playerHand.length <= 2 || opponentHand.length <= 2) {
+                gamePhase = 'late';
+            }
+            
+            return {
+                playerThreats: {
+                    hasKing: playerHasKing,
+                    hasQueen: playerHasQueen,
+                    hasSlave: playerHasSlave,
+                    hasAssassin: playerHasAssassin,
+                    hasButcher: playerHasButcher,
+                    handSize: playerHand.length
+                },
+                aiResources: {
+                    hasKing: aiHasKing,
+                    hasQueen: aiHasQueen,
+                    hasSlave: aiHasSlave,
+                    hasAssassin: aiHasAssassin,
+                    hasUltimateGuard: aiHasUltimateGuard,
+                    handSize: opponentHand.length
+                },
+                gameState: {
+                    turn: turn,
+                    phase: gamePhase,
+                    handAdvantage: handAdvantage,
+                    royalGuardProtection: gameState.royalGuardProtection,
+                    queenDead: gameState.queenDead,
+                    ultimateGuardUsedLastTurn: gameState.ultimateGuardUsedLastTurn
+                }
+            };
+        }
+
+        // 计算卡牌分数
+        function calculateCardScore(cardId, analysis) {
+            let score = 0;
+            const card = cardDefinitions[cardId];
+            const { playerThreats, aiResources, gameState: gameInfo } = analysis;
+            
+            // 基础分数（根据卡牌等级）
+            score += card.level * 10;
+            
+            // 特殊卡牌策略分析
+            switch(cardId) {
+                case 'king':
+                    // 国王的使用时机很关键
+                    if (gameInfo.phase === 'late') {
+                        score += 50; // 后期国王价值更高
+                    }
+                    if (playerThreats.hasSlave) {
+                        score -= 30; // 玩家有奴隶时要谨慎
+                    }
+                    if (gameState.royalGuardProtection) {
+                        score += 25; // 有皇家守卫保护时更安全
+                    }
+                    break;
+                    
+                case 'queen':
+                    // 女王只能在最后一张牌时出
+                    if (aiResources.handSize === 1) {
+                        score += 40;
+                    } else {
+                        score = -100; // 不能出牌
+                    }
+                    break;
+                    
+                case 'slave':
+                    // 奴隶专门克制国王
+                    if (playerThreats.hasKing) {
+                        score += 60; // 玩家有国王时奴隶价值极高
+                    }
+                    if (gameInfo.phase === 'late') {
+                        score += 30; // 后期奴隶更有价值
+                    }
+                    break;
+                    
+                case 'assassin':
+                    // 刺客的价值取决于目标
+                    if (playerThreats.hasKing || playerThreats.hasQueen) {
+                        score += 45; // 有关键目标时价值高
+                    }
+                    if (playerThreats.handSize > 2) {
+                        score += 20; // 玩家手牌多时可以抽牌刺杀
+                    }
+                    if (gameInfo.phase === 'mid') {
+                        score += 15; // 中期使用刺客较好
+                    }
+                    break;
+                    
+                case 'butcher':
+                    // 屠夫的同归于尽策略
+                    if (gameInfo.handAdvantage > 0) {
+                        score += 25; // 手牌优势时同归于尽有利
+                    }
+                    if (playerThreats.hasKing && !aiResources.hasSlave) {
+                        score += 35; // 没有奴隶对付国王时，屠夫是好选择
+                    }
+                    if (gameInfo.phase === 'late') {
+                        score += 20; // 后期屠夫价值提升
+                    }
+                    break;
+                    
+                case 'ultimateGuard':
+                    // 终极守卫不能连续使用
+                    if (gameState.ultimateGuardUsedLastTurn) {
+                        score = -100; // 不能使用
+                    } else {
+                        if (playerThreats.hasAssassin) {
+                            score += 40; // 对抗刺客
+                        }
+                        if (aiResources.hasKing || aiResources.hasQueen) {
+                            score += 30; // 保护关键牌
+                        }
+                    }
+                    break;
+                    
+                case 'royalGuard':
+                    // 皇家守卫的死后保护
+                    if (aiResources.hasKing && !gameState.royalGuardProtection) {
+                        score += 35; // 为国王提供保护
+                    }
+                    if (gameInfo.phase === 'early') {
+                        score += 20; // 早期建立保护
+                    }
+                    break;
+                    
+                case 'guard':
+                    // 普通守卫
+                    if (gameInfo.phase === 'early') {
+                        score += 10; // 早期稳定选择
+                    }
+                    break;
+                    
+                case 'citizen':
+                    // 市民是最基础的选择
+                    if (gameInfo.phase === 'early') {
+                        score += 5; // 早期可以用来试探
+                    }
+                    // 后期价值较低，保持基础分数
+                    break;
+            }
+            
+            // 根据游戏阶段调整策略
+            if (gameInfo.phase === 'late') {
+                // 后期更激进，优先高价值牌
+                if (card.type === 'key') {
+                    score += 25;
+                }
+                if (cardId === 'slave' || cardId === 'assassin') {
+                    score += 20;
+                }
+            } else if (gameInfo.phase === 'early') {
+                // 早期更保守，避免过早暴露关键牌
+                if (card.type === 'key') {
+                    score -= 15;
+                }
+                if (card.type === 'basic') {
+                    score += 10;
+                }
+            }
+            
+            // 手牌数量影响策略
+            if (aiResources.handSize <= 2) {
+                // 手牌少时更激进
+                if (card.type === 'key' || cardId === 'slave') {
+                    score += 30;
+                }
+            }
+            
+            // 对手手牌数量影响
+            if (playerThreats.handSize <= 2) {
+                // 对手手牌少时可以更激进
+                if (cardId === 'assassin' || cardId === 'butcher') {
+                    score += 20;
+                }
+            }
+            
+            return Math.max(0, score);
+        }
+
+        // AI刺客目标选择策略
+        function aiChooseAssassinTarget(playerPlayedCard) {
+            const playerHand = gameState.playerHand;
+            const playerCardDef = cardDefinitions[playerPlayedCard];
+            
+            // 如果玩家没有手牌，只能刺杀出牌
+            if (playerHand.length === 0) {
+                return 'killPlayed';
+            }
+            
+            // 分析玩家出牌的价值
+            let playedCardValue = playerCardDef.level * 10;
+            
+            // 关键牌价值更高
+            if (playerCardDef.type === 'key') {
+                playedCardValue += 50;
+            }
+            
+            // 特殊牌价值调整
+            if (playerPlayedCard === 'king') {
+                playedCardValue += 60; // 国王是最高价值目标
+            } else if (playerPlayedCard === 'queen') {
+                playedCardValue += 40; // 女王也很重要
+            } else if (playerPlayedCard === 'slave') {
+                playedCardValue += 30; // 奴隶对AI威胁较大
+            } else if (playerPlayedCard === 'ultimateGuard') {
+                playedCardValue += 35; // 终极守卫很强
+            }
+            
+            // 估算手牌中可能的高价值目标
+            let estimatedHandValue = 0;
+            
+            // 根据玩家阵营和剩余手牌数量估算
+            if (gameState.playerFaction === 'king') {
+                // 国王方可能有的高价值牌
+                if (playerHand.includes('king')) {
+                    estimatedHandValue += 70; // 确定有国王
+                } else if (playerHand.length >= 2 && !gameState.kingInPlay) {
+                    estimatedHandValue += 35; // 可能有国王
+                }
+                
+                if (playerHand.includes('queen')) {
+                    estimatedHandValue += 50; // 确定有女王
+                }
+                
+                if (playerHand.includes('ultimateGuard')) {
+                    estimatedHandValue += 40; // 确定有终极守卫
+                }
+            } else {
+                // 奴隶方的威胁评估
+                const slaveCount = playerHand.filter(card => card === 'slave').length;
+                estimatedHandValue += slaveCount * 40; // 每个奴隶都是威胁
+                
+                if (playerHand.includes('assassin')) {
+                    estimatedHandValue += 30; // 刺客威胁
+                }
+            }
+            
+            // 游戏阶段影响决策
+            const gamePhase = gameState.currentTurn > 3 ? 'late' : 'early';
+            
+            if (gamePhase === 'late') {
+                // 后期更倾向于刺杀确定的高价值目标
+                playedCardValue *= 1.3;
+            } else {
+                // 早期更倾向于抽牌刺杀，获取信息优势
+                estimatedHandValue *= 1.2;
+            }
+            
+            // 手牌数量影响
+            if (playerHand.length <= 2) {
+                // 玩家手牌少时，抽牌刺杀价值降低
+                estimatedHandValue *= 0.7;
+            } else if (playerHand.length >= 4) {
+                // 玩家手牌多时，抽牌刺杀价值提高
+                estimatedHandValue *= 1.3;
+            }
+            
+            // 决策：比较刺杀出牌 vs 抽牌刺杀的期望价值
+            const killPlayedValue = playedCardValue;
+            const drawKillValue = estimatedHandValue / playerHand.length; // 平均期望价值
+            
+            // 添加一些随机性，避免过于机械化
+            const randomFactor = 0.8 + Math.random() * 0.4; // 0.8-1.2的随机因子
+            
+            if (killPlayedValue * randomFactor > drawKillValue) {
+                return 'killPlayed';
+            } else {
+                return 'drawKill';
+            }
+        }
+
+        // AI选择手牌刺杀目标
+        function aiChooseHandTarget() {
+            const playerHand = gameState.playerHand;
+            
+            if (playerHand.length === 1) {
+                return 0;
+            }
+            
+            // 优先目标权重
+            const targetPriorities = {
+                'king': 100,      // 最高优先级
+                'queen': 80,      // 次高优先级
+                'slave': 70,      // 奴隶威胁很大
+                'ultimateGuard': 60,
+                'assassin': 50,
+                'royalGuard': 40,
+                'butcher': 30,
+                'guard': 20,
+                'citizen': 10     // 最低优先级
+            };
+            
+            // 计算每张牌的目标价值
+            let targetScores = playerHand.map((cardId, index) => {
+                let score = targetPriorities[cardId] || 10;
+                
+                // 根据游戏状态调整优先级
+                if (cardId === 'king' && gameState.playerFaction === 'king') {
+                    score += 20; // 国王方的国王更重要
+                }
+                
+                if (cardId === 'slave' && gameState.playerFaction === 'slave') {
+                    score += 15; // 奴隶方的奴隶是关键
+                }
+                
+                // 后期关键牌价值更高
+                if (gameState.currentTurn > 3 && (cardId === 'king' || cardId === 'queen' || cardId === 'slave')) {
+                    score += 25;
+                }
+                
+                return { index, score };
+            });
+            
+            // 按分数排序
+            targetScores.sort((a, b) => b.score - a.score);
+            
+            // 在前几个高分目标中随机选择，增加不可预测性
+            const topTargets = targetScores.filter(target => 
+                target.score >= targetScores[0].score - 20
+            );
+            
+            const selectedTarget = topTargets[Math.floor(Math.random() * topTargets.length)];
+            return selectedTarget.index;
+        }
+
+        // 出牌按钮
+        document.getElementById('playCardBtn').addEventListener('click', playCard);
+
+        function playCard() {
+            if (gameState.gameMode === 'ai') {
+                if (gameState.playerSelectedCard === null || gameState.gamePhase !== 'select') return;
+                
+                gameState.playerReady = true;
+                document.getElementById('playCardBtn').disabled = true;
+                document.getElementById('playCardBtn').textContent = '已选择卡牌';
+                
+                // 显示玩家已准备
+                document.querySelector('.player-area').style.borderColor = '#32cd32';
+                
+                checkBothReady();
+            } else {
+                // 本地对战模式
+                if (gameState.playerSelectedCard !== null && gameState.opponentSelectedCard !== null) {
+                    // 双方都已选择，直接进入翻牌
+                    gameState.playerReady = true;
+                    gameState.opponentReady = true;
+                    document.getElementById('playCardBtn').disabled = true;
+                    document.getElementById('playCardBtn').textContent = '双方已出牌';
+                    checkBothReady();
+                } else if (gameState.currentPlayer === 1 && gameState.playerSelectedCard !== null) {
+                    // 玩家1出牌
+                    gameState.player1Ready = true;
+                    gameState.currentPlayer = 2;
+                    document.getElementById('playCardBtn').disabled = true;
+                    document.getElementById('playCardBtn').textContent = '等待玩家2';
+                    
+                    // 切换到玩家2
+                    updateCurrentPlayerIndicator();
+                    
+                    // 隐藏玩家1的手牌，显示玩家2的手牌
+                    document.getElementById('playerHand').style.display = 'none';
+                    document.getElementById('opponentHandCards').style.display = 'flex';
+                    
+                } else if (gameState.currentPlayer === 2 && gameState.opponentSelectedCard !== null) {
+                    // 玩家2出牌
+                    gameState.player2Ready = true;
+                    gameState.playerReady = true;
+                    gameState.opponentReady = true;
+                    document.getElementById('playCardBtn').disabled = true;
+                    document.getElementById('playCardBtn').textContent = '双方已出牌';
+                    
+                    // 隐藏玩家2的手牌指示器
+                    document.getElementById('currentPlayerIndicator').style.display = 'none';
+                    document.getElementById('currentPlayerIndicator2').style.display = 'none';
+                    document.getElementById('opponentHandCards').style.display = 'none';
+                    document.getElementById('playerHand').style.display = 'flex';
+                    
+                    checkBothReady();
+                }
+            }
+        }
+
+        function checkBothReady() {
+            if (gameState.playerReady && gameState.opponentReady) {
+                // 进入翻牌阶段
+                gameState.gamePhase = 'reveal';
+                updatePhaseIndicator();
+                
+                setTimeout(() => {
+                    revealCards();
+                }, 1000);
+            }
+        }
+
+        function revealCards() {
+            const playerCardId = gameState.playerHand[gameState.playerSelectedCard];
+            const opponentCardId = gameState.opponentHand[gameState.opponentSelectedCard];
+            
+            gameState.playerPlayedCard = playerCardId;
+            gameState.opponentPlayedCard = opponentCardId;
+            
+            // 从手牌中移除
+            gameState.playerHand.splice(gameState.playerSelectedCard, 1);
+            gameState.opponentHand.splice(gameState.opponentSelectedCard, 1);
+            
+            // 本地对战模式下同步更新玩家手牌
+            if (gameState.gameMode === 'local') {
+                gameState.player1Hand = [...gameState.playerHand];
+                gameState.player2Hand = [...gameState.opponentHand];
+            }
+            
+            // 显示出牌
+            displayPlayedCards();
+            
+            // 进入战斗阶段
+            gameState.gamePhase = 'battle';
+            updatePhaseIndicator();
+            
+            // 延迟后进行战斗
+            setTimeout(() => {
+                resolveBattle();
+            }, 2000);
+        }
+
+        function displayPlayedCards() {
+            const playerCard = cardDefinitions[gameState.playerPlayedCard];
+            const opponentCard = cardDefinitions[gameState.opponentPlayedCard];
+            
+            document.getElementById('playerPlayedCard').innerHTML = `
+                <div class="card-level">${playerCard.level}</div>
+                <div class="card-icon">${playerCard.icon}</div>
+                <div class="card-name">${playerCard.name}</div>
+            `;
+            
+            document.getElementById('opponentPlayedCard').innerHTML = `
+                <div class="card-level">${opponentCard.level}</div>
+                <div class="card-icon">${opponentCard.icon}</div>
+                <div class="card-name">${opponentCard.name}</div>
+            `;
+        }
+
+        function resolveBattle() {
+            const playerCard = gameState.playerPlayedCard;
+            const opponentCard = gameState.opponentPlayedCard;
+            const playerCardDef = cardDefinitions[playerCard];
+            const opponentCardDef = cardDefinitions[opponentCard];
+            
+            let result = '';
+            let playerCardSurvives = false;
+            let opponentCardSurvives = false;
+            let specialEffect = '';
+            
+            // 屠夫优先级最高
+            if (playerCard === 'butcher' || opponentCard === 'butcher') {
+                result = '屠夫发动技能：双方同归于尽！';
+                specialEffect = '💀 同归于尽 💀';
+            }
+            // 刺客技能 - 双方同时出刺客时只能刺杀手牌
+            else if (playerCard === 'assassin' && opponentCard === 'assassin') {
+                result = '双方刺客对决：只能刺杀手牌！';
+                handleDoubleAssassin();
+                return;
+            }
+            // 玩家刺客 - 让玩家选择刺杀方式
+            else if (playerCard === 'assassin') {
+                if (opponentCard === 'ultimateGuard') {
+                    result = '终极守卫免疫刺杀：刺客被击杀！';
+                    opponentCardSurvives = true;
+                    specialEffect = '🛡️ 免疫刺杀 🛡️';
+                } else {
+                    // 显示刺客选择界面
+                    showAssassinChoice(true);
+                    return;
+                }
+            }
+            else if (opponentCard === 'assassin') {
+                if (playerCard === 'ultimateGuard') {
+                    result = '终极守卫免疫刺杀：刺客被击杀！';
+                    playerCardSurvives = true;
+                    specialEffect = '🛡️ 免疫刺杀 🛡️';
+                } else {
+                    // AI刺客智能选择策略
+                    const assassinChoice = aiChooseAssassinTarget(playerCard);
+                    if (assassinChoice === 'killPlayed' || gameState.playerHand.length === 0) {
+                        // 刺杀玩家出牌
+                        result = `对手刺客发动技能：刺杀了你的${playerCardDef.name}！刺客完成任务后死亡！`;
+                        opponentCardSurvives = false;
+                        specialEffect = '🔪 被刺杀 🔪';
+                    } else {
+                        // 抽取玩家手牌刺杀，玩家出牌回到手牌
+                        const targetIndex = aiChooseHandTarget();
+                        const targetCard = gameState.playerHand[targetIndex];
+                        gameState.playerHand.splice(targetIndex, 1);
+                        gameState.playerHand.push(playerCard); // 玩家出牌回到手牌
+                        result = `对手刺客发动技能：抽取并刺杀了你的${cardDefinitions[targetCard].name}！你的${playerCardDef.name}回到手牌！刺客完成任务后死亡！`;
+                        opponentCardSurvives = false;
+                        specialEffect = '🔪 被抽牌刺杀 🔪';
+                        playerCardSurvives = false; // 已经手动处理回到手牌
+                    }
+                }
+            }
+            // 奴隶特殊能力
+            else if (playerCard === 'slave' && opponentCard === 'king') {
+                result = '奴隶推翻王座：国王被击败！';
+                playerCardSurvives = true;
+                specialEffect = '⚔️ 推翻王座 ⚔️';
+            }
+            else if (opponentCard === 'slave' && playerCard === 'king') {
+                result = '对手奴隶推翻王座：国王被击败！';
+                opponentCardSurvives = true;
+                specialEffect = '⚔️ 王座倾覆 ⚔️';
+            }
+            // 皇家守卫保护
+            else if (playerCard === 'king' && gameState.royalGuardProtection) {
+                result = '皇家守卫保护生效：国王免死一次！';
+                playerCardSurvives = true;
+                gameState.royalGuardProtection = false;
+                specialEffect = '🛡️ 皇家保护 🛡️';
+            }
+            // 普通等级对比
+            else {
+                if (playerCardDef.level > opponentCardDef.level) {
+                    result = `${playerCardDef.name}（等级${playerCardDef.level}）击败了${opponentCardDef.name}（等级${opponentCardDef.level}）！`;
+                    playerCardSurvives = true;
+                } else if (opponentCardDef.level > playerCardDef.level) {
+                    result = `${opponentCardDef.name}（等级${opponentCardDef.level}）击败了${playerCardDef.name}（等级${playerCardDef.level}）！`;
+                    opponentCardSurvives = true;
+                } else {
+                    result = `双方等级相同（${playerCardDef.level}）：同归于尽！`;
+                    specialEffect = '⚖️ 势均力敌 ⚖️';
+                }
+            }
+            
+            // 处理特殊效果
+            handleSpecialEffects(playerCard, opponentCard, playerCardSurvives, opponentCardSurvives);
+            
+            // 显示战斗结果
+            showBattleResult(result, specialEffect);
+            
+            // 存活的卡牌回到手牌
+            if (playerCardSurvives) {
+                gameState.playerHand.push(playerCard);
+            }
+            if (opponentCardSurvives) {
+                gameState.opponentHand.push(opponentCard);
+            }
+            
+            // 本地对战模式下同步更新玩家手牌
+            if (gameState.gameMode === 'local') {
+                gameState.player1Hand = [...gameState.playerHand];
+                gameState.player2Hand = [...gameState.opponentHand];
+            }
+            
+            // 检查游戏结束条件
+            setTimeout(() => {
+                checkGameEnd();
+            }, 3000);
+        }
+
+        function handleSpecialEffects(playerCard, opponentCard, playerSurvives, opponentSurvives) {
+            // 皇家守卫死亡效果
+            if (playerCard === 'royalGuard' && !playerSurvives) {
+                gameState.royalGuardProtection = true;
+            }
+            
+            // 终极守卫使用记录
+            if (playerCard === 'ultimateGuard') {
+                gameState.ultimateGuardUsedLastTurn = true;
+            } else {
+                gameState.ultimateGuardUsedLastTurn = false;
+            }
+            
+            // 女王死亡效果
+            if (playerCard === 'queen' && !playerSurvives) {
+                gameState.queenDead = true;
+                gameState.playerHand.push('king');
+                // 终极守卫同时死亡
+                const ultimateGuardIndex = gameState.playerHand.indexOf('ultimateGuard');
+                if (ultimateGuardIndex !== -1) {
+                    gameState.playerHand.splice(ultimateGuardIndex, 1);
+                }
+            }
+            
+            if (opponentCard === 'queen' && !opponentSurvives) {
+                gameState.opponentHand.push('king');
+                // 终极守卫同时死亡
+                const ultimateGuardIndex = gameState.opponentHand.indexOf('ultimateGuard');
+                if (ultimateGuardIndex !== -1) {
+                    gameState.opponentHand.splice(ultimateGuardIndex, 1);
+                }
+            }
+        }
+
+        function handleDoubleAssassin() {
+            // 双方刺客对决，只能刺杀手牌
+            let result = '双方刺客对决：';
+            let playerLoss = '';
+            let opponentLoss = '';
+            
+            if (gameState.playerHand.length > 0 && gameState.opponentHand.length > 0) {
+                const playerTargetIndex = Math.floor(Math.random() * gameState.playerHand.length);
+                const opponentTargetIndex = Math.floor(Math.random() * gameState.opponentHand.length);
+                
+                const playerTarget = gameState.playerHand[playerTargetIndex];
+                const opponentTarget = gameState.opponentHand[opponentTargetIndex];
+                
+                gameState.playerHand.splice(playerTargetIndex, 1);
+                gameState.opponentHand.splice(opponentTargetIndex, 1);
+                
+                playerLoss = cardDefinitions[playerTarget].name;
+                opponentLoss = cardDefinitions[opponentTarget].name;
+                
+                result += `互相刺杀手牌！你失去了${playerLoss}，对手失去了${opponentLoss}！`;
+            } else if (gameState.playerHand.length > 0) {
+                const playerTargetIndex = Math.floor(Math.random() * gameState.playerHand.length);
+                const playerTarget = gameState.playerHand[playerTargetIndex];
+                gameState.playerHand.splice(playerTargetIndex, 1);
+                playerLoss = cardDefinitions[playerTarget].name;
+                result += `你失去了手牌${playerLoss}！`;
+            } else if (gameState.opponentHand.length > 0) {
+                const opponentTargetIndex = Math.floor(Math.random() * gameState.opponentHand.length);
+                const opponentTarget = gameState.opponentHand[opponentTargetIndex];
+                gameState.opponentHand.splice(opponentTargetIndex, 1);
+                opponentLoss = cardDefinitions[opponentTarget].name;
+                result += `对手失去了手牌${opponentLoss}！`;
+            } else {
+                result += '双方都没有手牌可刺杀！';
+            }
+            
+            // 本地对战模式下同步更新玩家手牌
+            if (gameState.gameMode === 'local') {
+                gameState.player1Hand = [...gameState.playerHand];
+                gameState.player2Hand = [...gameState.opponentHand];
+            }
+            
+            showBattleResult(result, '🗡️ 刺客对决 🗡️');
+            
+            setTimeout(() => {
+                checkGameEnd();
+            }, 3000);
+        }
+
+        function showBattleResult(result, specialEffect) {
+            // 记录本回合战斗
+            const battleRecord = {
+                turn: gameState.currentTurn,
+                playerCard: {
+                    name: cardDefinitions[gameState.playerPlayedCard].name,
+                    icon: cardDefinitions[gameState.playerPlayedCard].icon,
+                    id: gameState.playerPlayedCard
+                },
+                opponentCard: {
+                    name: cardDefinitions[gameState.opponentPlayedCard].name,
+                    icon: cardDefinitions[gameState.opponentPlayedCard].icon,
+                    id: gameState.opponentPlayedCard
+                },
+                result: result,
+                specialEffect: specialEffect || null
+            };
+            gameState.currentGameRecord.battles.push(battleRecord);
+            
+
+            
+            // 显示详细的战斗信息
+            const playerCardName = cardDefinitions[gameState.playerPlayedCard].name;
+            const opponentCardName = cardDefinitions[gameState.opponentPlayedCard].name;
+            const playerIcon = cardDefinitions[gameState.playerPlayedCard].icon;
+            const opponentIcon = cardDefinitions[gameState.opponentPlayedCard].icon;
+            
+            let playerLabel = gameState.gameMode === 'ai' ? '你' : '玩家1';
+            let opponentLabel = gameState.gameMode === 'ai' ? '对手' : '玩家2';
+            
+            const detailedResult = `
+                <div style="margin-bottom: 15px;">
+                    <strong>本回合对战：</strong><br>
+                    ${playerLabel}出了：${playerIcon} ${playerCardName}<br>
+                    ${opponentLabel}出了：${opponentIcon} ${opponentCardName}
+                </div>
+                <div>${result}</div>
+            `;
+            
+            document.getElementById('resultText').innerHTML = detailedResult;
+            document.getElementById('battleResult').style.display = 'block';
+            
+            if (specialEffect) {
+                const effectDiv = document.createElement('div');
+                effectDiv.className = 'special-effect';
+                effectDiv.textContent = specialEffect;
+                document.querySelector('.battle-area').appendChild(effectDiv);
+                
+                setTimeout(() => {
+                    effectDiv.remove();
+                }, 2000);
+            }
+        }
+
+
+
+        // 生成自然的战斗描述
+        function generateNaturalBattleDescription(battle) {
+            const playerCard = battle.playerCard;
+            const opponentCard = battle.opponentCard;
+            const result = battle.result;
+            
+            let description = '';
+            let resultClass = 'draw';
+            
+            // 根据卡牌组合和结果生成自然描述
+            if (result.includes('屠夫')) {
+                description = '💀 屠夫同归于尽';
+                resultClass = 'draw';
+            } else if (result.includes('刺客发动技能') && !result.includes('对手刺客')) {
+                if (result.includes('刺杀了你的')) {
+                    description = `🔪 ${playerCard.name}被刺杀`;
+                    resultClass = 'victory';
+                } else {
+                    description = `🔪 刺杀了${opponentCard.name}`;
+                    resultClass = 'victory';
+                }
+            } else if (result.includes('对手刺客发动技能')) {
+                if (result.includes('抽取并刺杀')) {
+                    description = '🔪 手牌被抽杀';
+                    resultClass = 'defeat';
+                } else {
+                    description = `🔪 ${playerCard.name}被刺杀`;
+                    resultClass = 'defeat';
+                }
+            } else if (result.includes('双方刺客对决')) {
+                description = '⚔️ 刺客互杀';
+                resultClass = 'special';
+            } else if (result.includes('奴隶推翻王座')) {
+                if (result.includes('对手奴隶')) {
+                    description = '👑 王座被推翻';
+                    resultClass = 'defeat';
+                } else {
+                    description = '⚔️ 推翻王座';
+                    resultClass = 'victory';
+                }
+            } else if (result.includes('皇家守卫保护')) {
+                description = '🛡️ 皇家守卫护主';
+                resultClass = 'victory';
+            } else if (result.includes('终极守卫免疫')) {
+                if (result.includes('刺客被击杀')) {
+                    description = '🛡️ 免疫刺杀';
+                    resultClass = 'victory';
+                } else {
+                    description = '🛡️ 终极防护';
+                    resultClass = 'defeat';
+                }
+            } else if (result.includes('击败')) {
+                // 等级对比结果
+                const playerLevel = cardDefinitions[playerCard.id].level;
+                const opponentLevel = cardDefinitions[opponentCard.id].level;
+                
+                if (result.includes(`${playerCard.name}（等级${playerLevel}）击败`)) {
+                    if (playerLevel > opponentLevel) {
+                        description = `💪 ${playerCard.name}压制获胜`;
+                    } else {
+                        description = `⚔️ ${playerCard.name}逆袭胜利`;
+                    }
+                    resultClass = 'victory';
+                } else {
+                    if (opponentLevel > playerLevel) {
+                        description = `😔 被${opponentCard.name}压制`;
+                    } else {
+                        description = `💔 ${opponentCard.name}逆袭`;
+                    }
+                    resultClass = 'defeat';
+                }
+            } else if (result.includes('同归于尽') || result.includes('势均力敌')) {
+                description = '⚖️ 势均力敌';
+                resultClass = 'draw';
+            } else {
+                // 默认情况
+                description = '⚔️ 激烈交锋';
+                resultClass = 'draw';
+            }
+            
+            return {
+                text: description,
+                class: resultClass
+            };
+        }
+
+        function checkGameEnd() {
+            let gameEnded = false;
+            let winner = '';
+            let reason = '';
+            
+            // 检查关键牌是否存在
+            const playerHasKey = gameState.playerHand.some(card => 
+                cardDefinitions[card].type === 'key'
+            );
+            const opponentHasKey = gameState.opponentHand.some(card => 
+                cardDefinitions[card].type === 'key'
+            );
+            
+            // 确定谁是王方，谁是奴隶方
+            let playerIsKing = gameState.playerFaction === 'king';
+            let playerKeyExists = playerIsKing ? playerHasKey : opponentHasKey;
+            let slaveHandEmpty = playerIsKing ? (gameState.opponentHand.length === 0) : (gameState.playerHand.length === 0);
+            
+            // 奴隶方胜利条件：王方的关键牌阵亡
+            if (playerIsKing && !playerHasKey) {
+                winner = gameState.gameMode === 'ai' ? '奴隶方胜利！' : '玩家2胜利！';
+                reason = '国王方的关键牌已被击败！';
+                gameEnded = true;
+            } else if (!playerIsKing && !opponentHasKey) {
+                winner = gameState.gameMode === 'ai' ? '奴隶方胜利！' : '玩家1胜利！';
+                reason = '成功击败了国王方的关键牌！';
+                gameEnded = true;
+            }
+            // 王方胜利条件：奴隶方无法再击杀关键牌（奴隶方手牌耗尽且王方关键牌存活）
+            else if (playerIsKing && gameState.opponentHand.length === 0 && playerHasKey) {
+                winner = gameState.gameMode === 'ai' ? '国王方胜利！' : '玩家1胜利！';
+                reason = '奴隶方已无力继续反抗，王座得以保全！';
+                gameEnded = true;
+            } else if (!playerIsKing && gameState.playerHand.length === 0 && opponentHasKey) {
+                winner = gameState.gameMode === 'ai' ? '国王方胜利！' : '玩家2胜利！';
+                reason = '奴隶方已无力继续反抗，王座得以保全！';
+                gameEnded = true;
+            }
+            // 双方手牌都耗尽的情况
+            else if (gameState.playerHand.length === 0 && gameState.opponentHand.length === 0) {
+                if (playerHasKey && !opponentHasKey) {
+                    winner = gameState.gameMode === 'ai' ? (playerIsKing ? '国王方胜利！' : '奴隶方胜利！') : '玩家1胜利！';
+                    reason = '你的关键牌存活到最后！';
+                } else if (!playerHasKey && opponentHasKey) {
+                    winner = gameState.gameMode === 'ai' ? (playerIsKing ? '奴隶方胜利！' : '国王方胜利！') : '玩家2胜利！';
+                    reason = '对手的关键牌存活到最后！';
+                } else if (playerHasKey && opponentHasKey) {
+                    winner = '平局！';
+                    reason = '双方关键牌都存活，势均力敌！';
+                } else {
+                    winner = '平局！';
+                    reason = '双方关键牌同归于尽！';
+                }
+                gameEnded = true;
+            }
+            // 单方手牌耗尽但对方还有牌的情况
+            else if (gameState.playerHand.length === 0) {
+                winner = gameState.gameMode === 'ai' ? '你败北了！' : '玩家2胜利！';
+                reason = gameState.gameMode === 'ai' ? '你的手牌已耗尽！' : '玩家1的手牌已耗尽！';
+                gameEnded = true;
+            } else if (gameState.opponentHand.length === 0) {
+                winner = gameState.gameMode === 'ai' ? '你胜利了！' : '玩家1胜利！';
+                reason = gameState.gameMode === 'ai' ? '对手的手牌已耗尽！' : '玩家2的手牌已耗尽！';
+                gameEnded = true;
+            }
+            
+            if (gameEnded) {
+                setTimeout(() => {
+                    showGameOver(winner, reason);
+                }, 1000);
+            } else {
+                // 继续下一回合
+                setTimeout(() => {
+                    nextTurn();
+                }, 1000);
+            }
+        }
+
+        function nextTurn() {
+            document.getElementById('battleResult').style.display = 'none';
+            
+            // 进入回合结束阶段
+            gameState.gamePhase = 'end';
+            updatePhaseIndicator();
+            
+            setTimeout(() => {
+                // 开始新回合
+                gameState.currentTurn++;
+                gameState.gamePhase = 'select';
+                
+                // 清空战斗区域
+                document.getElementById('playerPlayedCard').innerHTML = '<div style="font-size: 1.2rem;">等待出牌</div>';
+                document.getElementById('opponentPlayedCard').innerHTML = '<div style="font-size: 1.2rem;">等待出牌</div>';
+                
+                // 重置选择状态
+                gameState.playerSelectedCard = null;
+                gameState.opponentSelectedCard = null;
+                gameState.playerPlayedCard = null;
+                gameState.opponentPlayedCard = null;
+                gameState.playerReady = false;
+                gameState.opponentReady = false;
+                gameState.player1Ready = false;
+                gameState.player2Ready = false;
+                gameState.currentPlayer = 1;
+                
+                // 重置边框颜色
+                document.querySelector('.player-area').style.borderColor = '#d4af37';
+                document.querySelector('.opponent-area').style.borderColor = '#4a90e2';
+                
+                // 清理AI选择指示器
+                const aiIndicator = document.querySelector('.ai-selected-indicator');
+                if (aiIndicator) {
+                    aiIndicator.remove();
+                }
+                
+                // 重置按钮
+                document.getElementById('playCardBtn').disabled = true;
+                document.getElementById('playCardBtn').textContent = '出牌';
+                
+                // 隐藏玩家指示器
+                document.getElementById('currentPlayerIndicator').style.display = 'none';
+                document.getElementById('currentPlayerIndicator2').style.display = 'none';
+                document.getElementById('opponentHandCards').style.display = 'none';
+                document.getElementById('playerHand').style.display = 'flex';
+                
+                // 更新UI
+                updateGameUI();
+                updatePhaseIndicator();
+                
+                if (gameState.gameMode === 'ai') {
+                    // AI重新选择卡牌
+                    setTimeout(() => {
+                        aiSelectCard();
+                    }, 1000 + Math.random() * 2000);
+                } else {
+                    // 本地对战模式，显示当前玩家指示器
+                    updateCurrentPlayerIndicator();
+                }
+            }, 1000);
+        }
+
+        function showGameOver(winner, reason) {
+            // 检查是否已经记录过这场游戏，避免重复记录
+            if (gameState.currentGameRecord.endTime) {
+                console.log('游戏已结束，避免重复记录');
+                document.getElementById('winnerText').textContent = winner;
+                document.getElementById('gameOverReason').textContent = reason;
+                document.getElementById('gameOver').style.display = 'flex';
+                document.getElementById('battleResult').style.display = 'none';
+                return;
+            }
+            
+            // 完成游戏记录
+            gameState.currentGameRecord.endTime = new Date();
+            gameState.currentGameRecord.totalTurns = gameState.currentTurn;
+            gameState.currentGameRecord.finalReason = reason;
+            
+            // 判断游戏结果
+            if (gameState.gameMode === 'ai') {
+                if (winner.includes('胜利') && !winner.includes('败北')) {
+                    gameState.currentGameRecord.result = 'victory';
+                } else if (winner.includes('败北') || winner.includes('失败')) {
+                    gameState.currentGameRecord.result = 'defeat';
+                } else if (winner.includes('平局')) {
+                    gameState.currentGameRecord.result = 'draw';
+                } else {
+                    // 根据具体文本判断
+                    if (winner.includes('国王方胜利') && gameState.playerFaction === 'king') {
+                        gameState.currentGameRecord.result = 'victory';
+                    } else if (winner.includes('奴隶方胜利') && gameState.playerFaction === 'slave') {
+                        gameState.currentGameRecord.result = 'victory';
+                    } else if (winner.includes('国王方胜利') && gameState.playerFaction === 'slave') {
+                        gameState.currentGameRecord.result = 'defeat';
+                    } else if (winner.includes('奴隶方胜利') && gameState.playerFaction === 'king') {
+                        gameState.currentGameRecord.result = 'defeat';
+                    } else {
+                        gameState.currentGameRecord.result = 'draw';
+                    }
+                }
+            } else {
+                // 本地对战模式，不记录胜负，只记录完成状态
+                gameState.currentGameRecord.result = 'completed';
+            }
+            
+            // 保存到历史记录（AI对战和本地对战都保存）
+            gameHistory.unshift(gameState.currentGameRecord);
+            
+            // 限制历史记录数量（最多保存50场）
+            if (gameHistory.length > 50) {
+                gameHistory = gameHistory.slice(0, 50);
+            }
+            
+            // 更新玩家统计（仅AI对战）
+            if (gameState.gameMode === 'ai') {
+                updatePlayerStats(gameState.currentGameRecord);
+            }
+            
+            // 保存到本地存储
+            const saveSuccess = saveToLocalStorage();
+            if (saveSuccess) {
+                console.log('游戏记录已保存:', gameState.currentGameRecord);
+            }
+            
+            document.getElementById('winnerText').textContent = winner;
+            document.getElementById('gameOverReason').textContent = reason;
+            document.getElementById('gameOver').style.display = 'flex';
+            document.getElementById('battleResult').style.display = 'none';
+        }
+
+        // 继续按钮
+        document.getElementById('continueBtn').addEventListener('click', nextTurn);
+
+        // 刺客选择功能
+        function showAssassinChoice(isPlayer) {
+            const modal = document.getElementById('assassinSelection');
+            const optionsContainer = document.getElementById('assassinOptions');
+            
+            optionsContainer.innerHTML = '';
+            
+            if (isPlayer) {
+                // 玩家刺客选择
+                const killPlayedOption = document.createElement('button');
+                killPlayedOption.className = 'assassin-option';
+                killPlayedOption.textContent = `刺杀对手出牌 (${cardDefinitions[gameState.opponentPlayedCard].name})`;
+                killPlayedOption.onclick = () => handleAssassinChoice('killPlayed', true);
+                
+                const drawKillOption = document.createElement('button');
+                drawKillOption.className = 'assassin-option';
+                drawKillOption.textContent = '抽取对手手牌并刺杀';
+                if (gameState.opponentHand.length === 0) {
+                    drawKillOption.disabled = true;
+                    drawKillOption.style.opacity = '0.5';
+                    drawKillOption.textContent += ' (对手无手牌)';
+                }
+                drawKillOption.onclick = () => showHandSelection();
+                
+                optionsContainer.appendChild(killPlayedOption);
+                optionsContainer.appendChild(drawKillOption);
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function showHandSelection() {
+            const modal = document.getElementById('assassinSelection');
+            const modalContent = modal.querySelector('.assassin-modal');
+            
+            modalContent.innerHTML = `
+                <h3 style="color: #d4af37; margin-bottom: 20px;">🔪 选择刺杀目标</h3>
+                <p style="margin-bottom: 20px;">从对手手牌中盲选一张卡牌进行刺杀：</p>
+                <div id="handSelectionCards" class="hand-selection-cards" style="
+                    display: flex;
+                    gap: 10px;
+                    justify-content: center;
+                    flex-wrap: wrap;
+                    margin: 20px 0;
+                "></div>
+                <button onclick="cancelHandSelection()" style="
+                    background: #666;
+                    border: 2px solid #999;
+                    color: #fff;
+                    padding: 8px 15px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    margin-top: 10px;
+                ">返回</button>
+            `;
+            
+            const cardsContainer = document.getElementById('handSelectionCards');
+            
+            // 显示卡牌背面，不显示具体内容
+            gameState.opponentHand.forEach((cardId, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'hand-selection-card';
+                cardElement.style.cssText = `
+                    width: 80px;
+                    height: 120px;
+                    background: linear-gradient(145deg, #654321, #4a2c17);
+                    border: 2px solid #8b4513;
+                    border-radius: 8px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    text-align: center;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    padding: 8px;
+                    position: relative;
+                `;
+                
+                cardElement.innerHTML = `
+                    <div style="font-size: 2rem; margin-bottom: 8px;">🎴</div>
+                    <div style="font-size: 0.7rem; color: #d4af37; font-weight: bold;">第${index + 1}张</div>
+                    <div style="font-size: 0.6rem; color: #f4e4bc; margin-top: 5px;">点击刺杀</div>
+                `;
+                
+                cardElement.addEventListener('mouseenter', function() {
+                    this.style.borderColor = '#d4af37';
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.boxShadow = '0 8px 16px rgba(212, 175, 55, 0.3)';
+                });
+                
+                cardElement.addEventListener('mouseleave', function() {
+                    this.style.borderColor = '#8b4513';
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+                
+                cardElement.addEventListener('click', function() {
+                    handleAssassinChoice('drawKill', true, index);
+                });
+                
+                cardsContainer.appendChild(cardElement);
+            });
+        }
+
+        function cancelHandSelection() {
+            showAssassinChoice(true);
+        }
+        
+        function handleAssassinChoice(choice, isPlayer, targetIndex = null) {
+            document.getElementById('assassinSelection').style.display = 'none';
+            
+            let result = '';
+            let playerCardSurvives = false;
+            let opponentCardSurvives = false;
+            let specialEffect = '';
+            
+            const playerCard = gameState.playerPlayedCard;
+            const opponentCard = gameState.opponentPlayedCard;
+            const playerCardDef = cardDefinitions[playerCard];
+            const opponentCardDef = cardDefinitions[opponentCard];
+            
+            if (isPlayer) {
+                if (choice === 'killPlayed') {
+                    // 刺杀对手出牌，刺客死亡
+                    result = `刺客发动技能：无视等级刺杀${opponentCardDef.name}！刺客完成任务后死亡！`;
+                    playerCardSurvives = false;
+                    opponentCardSurvives = false;
+                    specialEffect = '🔪 刺杀出牌 🔪';
+                } else if (choice === 'drawKill') {
+                    // 玩家选择的目标手牌刺杀，对手出牌回到手牌，刺客死亡
+                    const targetCard = gameState.opponentHand[targetIndex];
+                    gameState.opponentHand.splice(targetIndex, 1);
+                    gameState.opponentHand.push(opponentCard); // 对手出牌回到手牌
+                    result = `刺客发动技能：你选择刺杀了对手的${cardDefinitions[targetCard].name}！对手的${opponentCardDef.name}回到手牌！刺客完成任务后死亡！`;
+                    playerCardSurvives = false;
+                    opponentCardSurvives = false; // 已经手动处理回到手牌，不需要再次添加
+                    specialEffect = '🔪 精准刺杀 🔪';
+                }
+            }
+            
+            // 本地对战模式下同步更新玩家手牌
+            if (gameState.gameMode === 'local') {
+                gameState.player1Hand = [...gameState.playerHand];
+                gameState.player2Hand = [...gameState.opponentHand];
+            }
+            
+            // 处理特殊效果
+            handleSpecialEffects(playerCard, opponentCard, playerCardSurvives, opponentCardSurvives);
+            
+            // 显示战斗结果
+            showBattleResult(result, specialEffect);
+            
+            // 存活的卡牌回到手牌
+            if (playerCardSurvives) {
+                gameState.playerHand.push(playerCard);
+            }
+            if (opponentCardSurvives) {
+                gameState.opponentHand.push(opponentCard);
+            }
+            
+            // 本地对战模式下同步更新玩家手牌
+            if (gameState.gameMode === 'local') {
+                gameState.player1Hand = [...gameState.playerHand];
+                gameState.player2Hand = [...gameState.opponentHand];
+            }
+            
+            // 检查游戏结束条件
+            setTimeout(() => {
+                checkGameEnd();
+            }, 3000);
+        }
+
+        // 历史战绩功能
+        function showHistory() {
+            updateHistoryStats();
+            renderHistoryList();
+            document.getElementById('historyModal').style.display = 'flex';
+        }
+
+        function updateHistoryStats() {
+            // 统计AI对战的战绩
+            const aiGames = gameHistory.filter(game => game.gameMode === 'ai');
+            const localGames = gameHistory.filter(game => game.gameMode === 'local');
+            
+            const totalAiGames = aiGames.length;
+            const victories = aiGames.filter(game => game.result === 'victory').length;
+            const defeats = aiGames.filter(game => game.result === 'defeat').length;
+            const draws = aiGames.filter(game => game.result === 'draw').length;
+            const winRate = totalAiGames > 0 ? Math.round((victories / totalAiGames) * 100) : 0;
+
+            // 更新统计显示
+            document.getElementById('totalGames').textContent = totalAiGames;
+            document.getElementById('victories').textContent = victories;
+            document.getElementById('defeats').textContent = defeats;
+            document.getElementById('draws').textContent = draws;
+            document.getElementById('winRate').textContent = winRate + '%';
+            
+            // 添加本地对战统计
+            const statsContainer = document.getElementById('historyStats');
+            const existingLocalStat = statsContainer.querySelector('.local-games-stat');
+            if (existingLocalStat) {
+                existingLocalStat.remove();
+            }
+            
+            if (localGames.length > 0) {
+                const localStatDiv = document.createElement('div');
+                localStatDiv.className = 'stat-item local-games-stat';
+                localStatDiv.innerHTML = `
+                    <span class="stat-number">${localGames.length}</span>
+                    <div class="stat-label">本地对战</div>
+                `;
+                statsContainer.appendChild(localStatDiv);
+            }
+        }
+
+        function renderHistoryList() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+
+            // 显示所有游戏记录（AI对战和本地对战）
+            if (gameHistory.length === 0) {
+                historyList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #999;">
+                        <div style="font-size: 3rem; margin-bottom: 15px;">⚔️</div>
+                        <div>还没有游戏记录</div>
+                        <div style="font-size: 0.9rem; margin-top: 8px;">开始你的第一场对战吧！</div>
+                    </div>
+                `;
+                return;
+            }
+
+            gameHistory.forEach((game, index) => {
+                const gameItem = document.createElement('div');
+                gameItem.className = `history-item ${game.result || 'completed'}`;
+                
+                const duration = Math.round((new Date(game.endTime) - new Date(game.startTime)) / 1000);
+                const durationText = duration < 60 ? `${duration}秒` : `${Math.floor(duration/60)}分${duration%60}秒`;
+                
+                // 获取玩家名字，如果没有设置则使用默认名字
+                const playerName = playerProfile.name || '我';
+                
+                let resultText = '';
+                let gameModeText = '';
+                let winnerText = '';
+                let opponentName = '';
+                
+                if (game.gameMode === 'ai') {
+                    gameModeText = '🤖 AI对战';
+                    opponentName = 'AI智能对手';
+                    
+                    if (game.result === 'victory') {
+                        resultText = '胜利';
+                        winnerText = `🏆 ${playerName} 获胜`;
+                    } else if (game.result === 'defeat') {
+                        resultText = '失败';
+                        winnerText = `😔 ${opponentName} 获胜`;
+                    } else {
+                        resultText = '平局';
+                        winnerText = '⚖️ 平局收场';
+                    }
+                } else {
+                    gameModeText = '👥 本地对战';
+                    opponentName = '本地玩家2';
+                    resultText = '已完成';
+                    winnerText = '🎮 对战完成';
+                }
+                
+                const playerFactionText = game.playerFaction === 'king' ? '👑 国王方' : '🩸 奴隶方';
+                const opponentFactionText = game.opponentFaction === 'king' ? '👑 国王方' : '🩸 奴隶方';
+                
+                const openingText = game.playerOpening === 'kingOpening' ? '国王开局' :
+                                  game.playerOpening === 'queenOpening' ? '女王开局' : '奴隶开局';
+
+                // 构建战斗详情
+                const battleDetails = game.battles && game.battles.length > 0 ? 
+                    game.battles.map(battle => {
+                        let battleResult = '';
+                        if (battle.result) {
+                            // 简化结果显示
+                            if (battle.result.includes('击败')) {
+                                if (battle.result.includes(`${battle.playerCard.name}（等级${cardDefinitions[battle.playerCard.id].level}）击败`)) {
+                                    battleResult = '玩家胜';
+                                } else {
+                                    battleResult = '对手胜';
+                                }
+                            } else if (battle.result.includes('同归于尽') || battle.result.includes('势均力敌')) {
+                                battleResult = '平局';
+                            } else if (battle.result.includes('刺客') || battle.result.includes('刺杀')) {
+                                battleResult = '刺杀';
+                            } else if (battle.result.includes('屠夫')) {
+                                battleResult = '同归于尽';
+                            } else if (battle.result.includes('奴隶推翻')) {
+                                battleResult = battle.result.includes('对手奴隶') ? '对手胜' : '玩家胜';
+                            } else {
+                                battleResult = '特殊';
+                            }
+                        }
+                        
+                        return `
+                            <div style="
+                                display: flex; 
+                                justify-content: space-between; 
+                                align-items: center; 
+                                margin: 3px 0; 
+                                padding: 5px 8px; 
+                                background: rgba(0,0,0,0.2); 
+                                border-radius: 4px;
+                                border-left: 3px solid ${battleResult === '玩家胜' ? '#32cd32' : battleResult === '对手胜' ? '#dc143c' : '#ffd700'};
+                            ">
+                                <div style="flex: 1;">
+                                    <span style="color: #d4af37; font-weight: bold;">第${battle.turn}回合:</span>
+                                    <div style="margin-top: 2px; font-size: 0.9rem;">
+                                        <span style="color: #f4e4bc;">${playerName || '我'}</span> ${battle.playerCard.icon}${battle.playerCard.name} 
+                                        <span style="color: #999; margin: 0 5px;">⚔️</span> 
+                                        <span style="color: #f4e4bc;">${opponentName}</span> ${battle.opponentCard.icon}${battle.opponentCard.name}
+                                    </div>
+                                </div>
+                                <div style="
+                                    font-size: 0.7rem; 
+                                    padding: 2px 6px; 
+                                    border-radius: 3px; 
+                                    background: ${battleResult === '玩家胜' ? 'rgba(50,205,50,0.2)' : 
+                                                battleResult === '对手胜' ? 'rgba(220,20,60,0.2)' : 'rgba(255,215,0,0.2)'};
+                                    color: ${battleResult === '玩家胜' ? '#32cd32' : 
+                                            battleResult === '对手胜' ? '#dc143c' : '#ffd700'};
+                                    font-weight: bold;
+                                ">
+                                    ${battleResult}
+                                </div>
+                            </div>
+                        `;
+                    }).join('') : '<div style="color: #999; font-style: italic;">无战斗记录</div>';
+
+                gameItem.innerHTML = `
+                    <div class="game-summary">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="game-result ${game.result || 'completed'}">${resultText}</div>
+                            <div style="font-size: 0.8rem; color: #999; background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 10px;">
+                                ${gameModeText}
+                            </div>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #999;">
+                            ${new Date(game.startTime).toLocaleDateString()} ${new Date(game.startTime).toLocaleTimeString().slice(0,5)}
+                        </div>
+                    </div>
+                    <div class="game-details">
+                        <div style="margin-bottom: 12px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; border-left: 4px solid ${game.result === 'victory' ? '#32cd32' : game.result === 'defeat' ? '#dc143c' : '#ffd700'};">
+                            <div style="font-size: 1.1rem; font-weight: bold; margin-bottom: 5px; color: #d4af37;">
+                                ${winnerText}
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                <div style="flex: 1; min-width: 120px;">
+                                    <div style="font-weight: bold; color: #f4e4bc;">${playerName}</div>
+                                    <div style="font-size: 0.9rem; color: #999;">${playerFactionText} (${openingText})</div>
+                                </div>
+                                <div style="font-size: 1.5rem; color: #d4af37; font-weight: bold;">VS</div>
+                                <div style="flex: 1; min-width: 120px; text-align: right;">
+                                    <div style="font-weight: bold; color: #f4e4bc;">${opponentName}</div>
+                                    <div style="font-size: 0.9rem; color: #999;">${opponentFactionText}</div>
+                                </div>
+                            </div>
+                        </div>
+                        ${game.finalReason ? `
+                            <div style="margin-bottom: 8px;">
+                                <strong>结束原因：</strong>${game.finalReason}
+                            </div>
+                        ` : ''}
+                        <div style="margin-bottom: 8px;">
+                            <strong>对局历史：</strong>
+                            <div style="margin-top: 8px; max-height: 200px; overflow-y: auto; border: 1px solid rgba(139,69,19,0.3); border-radius: 6px; padding: 5px;">
+                                ${battleDetails}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="game-meta">
+                        <span>共${game.totalTurns}回合</span>
+                        <span>用时${durationText}</span>
+                        <span>${game.battles ? game.battles.length : 0}次交锋</span>
+                    </div>
+                `;
+                
+                historyList.appendChild(gameItem);
+            });
+        }
+
+        function clearHistory() {
+            if (confirm('确定要清空所有历史记录吗？此操作不可恢复。')) {
+                gameHistory = [];
+                const saveSuccess = saveToLocalStorage();
+                if (saveSuccess) {
+                    showNotification('历史记录已清空', 'info');
+                }
+                updateHistoryStats();
+                renderHistoryList();
+            }
+        }
+
+        // 更新玩家统计
+        function updatePlayerStats(gameRecord) {
+            const stats = playerProfile.stats;
+            
+            // 更新基础统计
+            stats.totalBattles++;
+            
+            // 计算游戏时长
+            const gameTime = Math.round((new Date(gameRecord.endTime) - new Date(gameRecord.startTime)) / 1000);
+            stats.totalGameTime += gameTime;
+            
+            // 更新胜负统计
+            if (gameRecord.result === 'victory') {
+                if (gameRecord.playerFaction === 'king') {
+                    stats.kingWins++;
+                } else {
+                    stats.slaveWins++;
+                }
+                stats.currentWinStreak++;
+                stats.maxWinStreak = Math.max(stats.maxWinStreak, stats.currentWinStreak);
+            } else if (gameRecord.result === 'defeat') {
+                stats.currentWinStreak = 0;
+            }
+            
+            // 更新卡牌使用统计
+            if (gameRecord.battles) {
+                gameRecord.battles.forEach(battle => {
+                    const cardId = battle.playerCard.id;
+                    stats.cardUsageCount[cardId] = (stats.cardUsageCount[cardId] || 0) + 1;
+                });
+            }
+            
+            // 检查成就
+            checkAchievements(gameRecord);
+            
+            // 更新称号
+            updatePlayerTitle();
+            
+            // 保存档案
+            saveToLocalStorage();
+        }
+
+        // 检查成就
+        function checkAchievements(gameRecord) {
+            const stats = playerProfile.stats;
+            const victories = gameHistory.filter(g => g.gameMode === 'ai' && g.result === 'victory').length;
+            
+            achievementSystem.forEach(achievement => {
+                if (playerProfile.achievements.includes(achievement.id)) return;
+                
+                let unlocked = false;
+                
+                switch (achievement.requirement.type) {
+                    case 'victories':
+                        unlocked = victories >= achievement.requirement.count;
+                        break;
+                    case 'winStreak':
+                        unlocked = stats.maxWinStreak >= achievement.requirement.count;
+                        break;
+                    case 'kingWins':
+                        unlocked = stats.kingWins >= achievement.requirement.count;
+                        break;
+                    case 'slaveWins':
+                        unlocked = stats.slaveWins >= achievement.requirement.count;
+                        break;
+                    case 'totalBattles':
+                        unlocked = stats.totalBattles >= achievement.requirement.count;
+                        break;
+                    case 'cardUsage':
+                        const cardCount = stats.cardUsageCount[achievement.requirement.card] || 0;
+                        unlocked = cardCount >= achievement.requirement.count;
+                        break;
+                    case 'quickWin':
+                        unlocked = gameRecord.totalTurns <= achievement.requirement.turns && gameRecord.result === 'victory';
+                        break;
+                    case 'totalTime':
+                        unlocked = stats.totalGameTime >= achievement.requirement.minutes * 60;
+                        break;
+                }
+                
+                if (unlocked) {
+                    playerProfile.achievements.push(achievement.id);
+                    showAchievementUnlocked(achievement);
+                }
+            });
+        }
+
+        // 显示成就解锁通知
+        function showAchievementUnlocked(achievement) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(145deg, #d4af37, #b8860b);
+                color: #2c1810;
+                padding: 15px 20px;
+                border-radius: 10px;
+                border: 3px solid #2c1810;
+                box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+                z-index: 10000;
+                font-weight: bold;
+                animation: achievementSlideIn 0.5s ease-out;
+                max-width: 300px;
+            `;
+            
+            notification.innerHTML = `
+                <div style="font-size: 1.2rem; margin-bottom: 5px;">🏆 成就解锁！</div>
+                <div style="font-size: 1.5rem; margin-bottom: 5px;">${achievement.icon} ${achievement.name}</div>
+                <div style="font-size: 0.9rem; opacity: 0.8;">${achievement.description}</div>
+            `;
+            
+            // 添加动画样式
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes achievementSlideIn {
+                    0% { transform: translateX(100%); opacity: 0; }
+                    100% { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // 3秒后自动消失
+            setTimeout(() => {
+                notification.style.animation = 'achievementSlideIn 0.5s ease-out reverse';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 500);
+            }, 3000);
+        }
+
+        // 更新玩家称号
+        function updatePlayerTitle() {
+            const victories = gameHistory.filter(g => g.gameMode === 'ai' && g.result === 'victory').length;
+            
+            for (let i = titleSystem.length - 1; i >= 0; i--) {
+                if (victories >= titleSystem[i].requirement) {
+                    playerProfile.title = titleSystem[i].name;
+                    break;
+                }
+            }
+        }
+
+        // 显示个人主页
+        function showProfile() {
+            updateProfileDisplay();
+            document.getElementById('profileModal').style.display = 'flex';
+        }
+
+        // 更新个人主页显示
+        function updateProfileDisplay() {
+            // 更新头像和昵称
+            document.getElementById('profileAvatar').textContent = playerProfile.avatar;
+            document.getElementById('playerName').value = playerProfile.name;
+            document.getElementById('playerTitle').textContent = playerProfile.title;
+            
+            // 更新头像选择器
+            document.querySelectorAll('.avatar-option').forEach(option => {
+                option.classList.remove('selected');
+                if (option.dataset.avatar === playerProfile.avatar) {
+                    option.classList.add('selected');
+                }
+            });
+            
+            // 更新称号进度
+            updateTitleProgress();
+            
+            // 更新成就
+            updateAchievementsDisplay();
+            
+            // 更新详细统计
+            updateDetailedStats();
+        }
+
+        // 更新称号进度
+        function updateTitleProgress() {
+            const victories = gameHistory.filter(g => g.gameMode === 'ai' && g.result === 'victory').length;
+            const currentTitleIndex = titleSystem.findIndex(title => title.name === playerProfile.title);
+            const nextTitleIndex = currentTitleIndex + 1;
+            
+            if (nextTitleIndex < titleSystem.length) {
+                const nextTitle = titleSystem[nextTitleIndex];
+                const progress = Math.min(100, (victories / nextTitle.requirement) * 100);
+                const remaining = Math.max(0, nextTitle.requirement - victories);
+                
+                document.getElementById('titleProgress').style.width = progress + '%';
+                document.getElementById('titleProgressText').textContent = 
+                    `${remaining}胜利解锁 "${nextTitle.name}"`;
+            } else {
+                document.getElementById('titleProgress').style.width = '100%';
+                document.getElementById('titleProgressText').textContent = '已达到最高称号！';
+            }
+        }
+
+        // 更新成就显示
+        function updateAchievementsDisplay() {
+            const container = document.getElementById('achievementsList');
+            container.innerHTML = '';
+            
+            achievementSystem.forEach(achievement => {
+                const isUnlocked = playerProfile.achievements.includes(achievement.id);
+                const achievementDiv = document.createElement('div');
+                achievementDiv.className = `achievement-item ${isUnlocked ? 'unlocked' : 'locked'}`;
+                
+                // 计算进度
+                let progressText = '';
+                if (!isUnlocked) {
+                    const stats = playerProfile.stats;
+                    const victories = gameHistory.filter(g => g.gameMode === 'ai' && g.result === 'victory').length;
+                    
+                    let current = 0;
+                    let total = achievement.requirement.count;
+                    
+                    switch (achievement.requirement.type) {
+                        case 'victories':
+                            current = victories;
+                            break;
+                        case 'winStreak':
+                            current = stats.maxWinStreak;
+                            break;
+                        case 'kingWins':
+                            current = stats.kingWins;
+                            break;
+                        case 'slaveWins':
+                            current = stats.slaveWins;
+                            break;
+                        case 'totalBattles':
+                            current = stats.totalBattles;
+                            break;
+                        case 'cardUsage':
+                            current = stats.cardUsageCount[achievement.requirement.card] || 0;
+                            break;
+                        case 'totalTime':
+                            current = Math.floor(stats.totalGameTime / 60);
+                            total = achievement.requirement.minutes;
+                            break;
+                    }
+                    
+                    if (achievement.requirement.type !== 'quickWin') {
+                        progressText = `<div class="achievement-progress">${current}/${total}</div>`;
+                    }
+                }
+                
+                achievementDiv.innerHTML = `
+                    <div class="achievement-icon">${achievement.icon}</div>
+                    <div class="achievement-name">${achievement.name}</div>
+                    <div class="achievement-desc">${achievement.description}</div>
+                    ${progressText}
+                    ${isUnlocked ? '<div style="color: #32cd32; font-size: 0.8rem; margin-top: 5px;">✓ 已解锁</div>' : ''}
+                `;
+                
+                container.appendChild(achievementDiv);
+            });
+        }
+
+        // 更新详细统计
+        function updateDetailedStats() {
+            const stats = playerProfile.stats;
+            const victories = gameHistory.filter(g => g.gameMode === 'ai' && g.result === 'victory').length;
+            
+            document.getElementById('totalBattles').textContent = stats.totalBattles;
+            document.getElementById('kingWins').textContent = stats.kingWins;
+            document.getElementById('slaveWins').textContent = stats.slaveWins;
+            document.getElementById('winStreak').textContent = stats.maxWinStreak;
+            
+            // 平均游戏时长
+            const avgTime = stats.totalBattles > 0 ? Math.round(stats.totalGameTime / stats.totalBattles) : 0;
+            const avgMinutes = Math.floor(avgTime / 60);
+            const avgSeconds = avgTime % 60;
+            document.getElementById('avgGameTime').textContent = 
+                avgMinutes > 0 ? `${avgMinutes}分${avgSeconds}秒` : `${avgSeconds}秒`;
+            
+            // 最常用卡牌
+            let mostUsedCard = '市民';
+            let maxUsage = 0;
+            Object.entries(stats.cardUsageCount).forEach(([cardId, count]) => {
+                if (count > maxUsage) {
+                    maxUsage = count;
+                    mostUsedCard = cardDefinitions[cardId].name;
+                }
+            });
+            document.getElementById('favoriteCard').textContent = mostUsedCard;
+        }
+
+        // 保存个人设置
+        function saveProfile() {
+            playerProfile.name = document.getElementById('playerName').value.trim();
+            const saveSuccess = saveToLocalStorage();
+            
+            // 显示保存结果提示
+            const saveBtn = document.getElementById('saveProfileBtn');
+            const originalText = saveBtn.textContent;
+            
+            if (saveSuccess) {
+                saveBtn.textContent = '保存成功！';
+                saveBtn.style.background = 'linear-gradient(145deg, #32cd32, #228b22)';
+                showNotification('个人设置已保存', 'info');
+            } else {
+                saveBtn.textContent = '保存失败！';
+                saveBtn.style.background = 'linear-gradient(145deg, #dc143c, #8b0000)';
+            }
+            
+            setTimeout(() => {
+                saveBtn.textContent = originalText;
+                saveBtn.style.background = 'linear-gradient(145deg, #32cd32, #228b22)';
+            }, 2000);
+        }
+
+        // 事件监听器
+        document.getElementById('showHistoryBtn').addEventListener('click', showHistory);
+        document.getElementById('closeHistoryBtn').addEventListener('click', function() {
+            document.getElementById('historyModal').style.display = 'none';
+        });
+        document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
+        
+        document.getElementById('showProfileBtn').addEventListener('click', showProfile);
+        
+        // 头像选择事件 - 使用事件委托
+        document.addEventListener('click', function(e) {
+            // 处理头像选择
+            if (e.target.classList.contains('avatar-option')) {
+                document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+                e.target.classList.add('selected');
+                playerProfile.avatar = e.target.dataset.avatar;
+                document.getElementById('profileAvatar').textContent = e.target.dataset.avatar;
+            }
+            
+            // 处理个人主页按钮
+            if (e.target.id === 'closeProfileBtn') {
+                document.getElementById('profileModal').style.display = 'none';
+            }
+            
+            if (e.target.id === 'saveProfileBtn') {
+                saveProfile();
+            }
+        });
+
+        // 重新开始按钮
+        document.getElementById('restartBtn').addEventListener('click', function() {
+            document.getElementById('gameOver').style.display = 'none';
+            initGame();
+        });
+
+        // 回到主页按钮
+        document.getElementById('backToHomeBtn').addEventListener('click', function() {
+            // 直接调用initGame函数来重置到主页
+            initGame();
+        });
+
+        // 认输按钮
+        document.getElementById('surrenderBtn').addEventListener('click', function() {
+            showSurrenderConfirmation();
+        });
+
+        // 显示认输确认对话框
+        function showSurrenderConfirmation() {
+            const confirmModal = document.createElement('div');
+            confirmModal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                animation: smoothFadeIn 0.3s ease-out;
+            `;
+            
+            confirmModal.innerHTML = `
+                <div style="
+                    background: linear-gradient(145deg, #3a2817, #2c1810);
+                    border: 3px solid #d4af37;
+                    border-radius: 15px;
+                    padding: 30px;
+                    text-align: center;
+                    max-width: 400px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+                ">
+                    <div style="font-size: 2rem; margin-bottom: 15px;">🏳️</div>
+                    <h3 style="color: #d4af37; margin-bottom: 15px;">确认认输</h3>
+                    <p style="color: #f4e4bc; margin-bottom: 25px; line-height: 1.5;">
+                        你确定要认输吗？<br>
+                        这将结束当前游戏并记录为失败。
+                    </p>
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <button id="confirmSurrender" style="
+                            background: linear-gradient(145deg, #8b0000, #654321);
+                            border: 2px solid #dc143c;
+                            color: #f4e4bc;
+                            padding: 10px 20px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-size: 1rem;
+                            transition: all 0.3s ease;
+                        ">确认认输</button>
+                        <button id="cancelSurrender" style="
+                            background: linear-gradient(145deg, #8b4513, #654321);
+                            border: 2px solid #d4af37;
+                            color: #f4e4bc;
+                            padding: 10px 20px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-size: 1rem;
+                            transition: all 0.3s ease;
+                        ">继续游戏</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(confirmModal);
+            
+            // 确认认输
+            document.getElementById('confirmSurrender').addEventListener('click', function() {
+                document.body.removeChild(confirmModal);
+                handleSurrender();
+            });
+            
+            // 取消认输
+            document.getElementById('cancelSurrender').addEventListener('click', function() {
+                document.body.removeChild(confirmModal);
+            });
+            
+            // 点击背景关闭
+            confirmModal.addEventListener('click', function(e) {
+                if (e.target === confirmModal) {
+                    document.body.removeChild(confirmModal);
+                }
+            });
+        }
+
+        // 处理认输
+        function handleSurrender() {
+            let winner = '';
+            let reason = '你选择了认输';
+            
+            if (gameState.gameMode === 'ai') {
+                winner = '你败北了！';
+                gameState.currentGameRecord.result = 'defeat';
+            } else {
+                // 本地对战模式
+                if (gameState.currentPlayer === 1 || gameState.playerFaction === 'king') {
+                    winner = '玩家2胜利！';
+                    reason = '玩家1认输';
+                } else {
+                    winner = '玩家1胜利！';
+                    reason = '玩家2认输';
+                }
+                gameState.currentGameRecord.result = 'completed';
+            }
+            
+            // 显示游戏结束界面（showGameOver函数会处理记录保存）
+            showGameOver(winner, reason);
+        }
+
+        // 初始化游戏
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99190266b501ee09',t:'MTc2MDk2ODQ5MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
